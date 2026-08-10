@@ -2,7 +2,8 @@
 <!--
   Reference language file. Every other file in this folder may omit keys;
   anything missing falls back to the value defined here.
-  Placeholders {0}, {1}, ... are filled in by the add-in.
+  Placeholders {0}, {1}, ... are filled in by the add-in and must survive
+  translation.
 -->
 <strings language="en">
 
@@ -16,43 +17,43 @@ Pick a line, then set count / size / depth / tolerance.</string>
   <string key="in.line.prompt">Select a sketch line</string>
   <string key="in.count">Count</string>
   <string key="in.shape">Shape</string>
-  <string key="shape.trapez">Trapezoid (dovetail)</string>
+  <string key="shape.trapezoid">Trapezoid (dovetail)</string>
   <string key="shape.triangle">Triangle</string>
-  <string key="shape.rect">Rectangle (box joint)</string>
+  <string key="shape.rectangle">Rectangle (box joint)</string>
   <string key="in.width">Width (base)</string>
   <string key="in.depth">Depth</string>
   <string key="in.angle">Flank angle</string>
   <string key="in.spacing">Spacing (centre to centre)</string>
-  <string key="in.shift">Offset</string>
+  <string key="in.offset">Offset</string>
   <string key="in.step">Step size</string>
   <string key="in.nudge">Move</string>
   <string key="nudge.left">Left (towards the start point)</string>
   <string key="nudge.center">Centre</string>
   <string key="nudge.right">Right (towards the end point)</string>
   <string key="nudge.tooltip">Moves the teeth along the line by one step. Limited to the range in which they still fit entirely on the line.</string>
-  <string key="in.tol">Tolerance</string>
+  <string key="in.tolerance">Tolerance</string>
   <string key="in.flip">Flip direction</string>
   <string key="in.mate">Create mating contour (tolerance)</string>
   <string key="in.replace">Replace the original line</string>
 
   <!-- Validation -->
   <string key="err.no_line">Please select exactly one sketch line.</string>
-  <string key="err.no_length">The selected line has no length.</string>
+  <string key="err.zero_length">The selected line has no length.</string>
   <string key="err.width">The width must be greater than 0.</string>
   <string key="err.depth">The depth must be greater than 0.</string>
-  <string key="err.tol_neg">The tolerance must not be negative.</string>
+  <string key="err.tolerance_negative">The tolerance must not be negative.</string>
   <string key="err.count">At least one dovetail is required.</string>
   <string key="err.angle_range">The flank angle must be between -89 and 89 degrees.</string>
-  <string key="err.angle_neg">The flank angle is too steeply negative - the tooth tapers away to nothing.</string>
-  <string key="err.spacing_pos">The spacing must be greater than 0.</string>
-  <string key="err.spacing_small">The spacing is too small - the dovetails would overlap. At least {0} mm is required.</string>
-  <string key="err.shift_range">The offset pushes the teeth past the end of the line. At most +/- {0} mm is possible.</string>
-  <string key="err.too_long">The teeth are wider than the selected line ({0} mm). Reduce the count, the width or the spacing.</string>
-  <string key="err.miter">The mating contour runs away at a sharp corner.
+  <string key="err.angle_negative">The flank angle is too steeply negative - the tooth tapers away to nothing.</string>
+  <string key="err.spacing_positive">The spacing must be greater than 0.</string>
+  <string key="err.spacing_too_small">The spacing is too small - the dovetails would overlap. At least {0} mm is required.</string>
+  <string key="err.offset_range">The offset pushes the teeth past the end of the line. At most +/- {0} mm is possible.</string>
+  <string key="err.does_not_fit">The teeth are wider than the selected line ({0} mm). Reduce the count, the width or the spacing.</string>
+  <string key="err.miter_runaway">The mating contour runs away at a sharp corner.
 Make the tooth flatter (less depth / more width) or reduce the tolerance.</string>
-  <string key="err.tol_eats">The tolerance eats the whole tooth. Reduce the tolerance or increase the depth.</string>
-  <string key="err.tol_depth">The tolerance is too large compared to the depth.</string>
-  <string key="err.tol_width">The tolerance is too large compared to the width.</string>
+  <string key="err.tolerance_eats_tooth">The tolerance eats the whole tooth. Reduce the tolerance or increase the depth.</string>
+  <string key="err.tolerance_vs_depth">The tolerance is too large compared to the depth.</string>
+  <string key="err.tolerance_vs_width">The tolerance is too large compared to the width.</string>
   <string key="err.degenerate">The contour is degenerate.</string>
 
   <!-- Message boxes -->

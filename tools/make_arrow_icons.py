@@ -1,18 +1,18 @@
 # -*- coding: utf-8 -*-
-"""Erzeugt die Pfeil-Icons fuer die Verschieben-Buttons (nur stdlib)."""
+"""Generate the arrow icons for the move buttons (standard library only)."""
 import os
 import zlib
 import struct
 
 _HERE = os.path.dirname(os.path.abspath(__file__))
-ADDIN = os.environ.get('SS_ADDIN_DIR') or os.path.join(
-    os.path.dirname(_HERE), 'Schwalbenschwanz')
+ADDIN = os.environ.get('DOVETAIL_ADDIN_DIR') or os.path.join(
+    os.path.dirname(_HERE), 'Dovetail')
 BASE = os.path.join(ADDIN, 'resources')
 
 DARK = (0x2E, 0x3A, 0x45)
-SS = 4
+SS = 4  # supersampling factor
 
-# Polygone in normierten Koordinaten (0..1, y nach oben)
+# Polygons in normalised coordinates (0..1, y pointing up)
 ICONS = {
     'nudge_left': [
         [(0.26, 0.50), (0.66, 0.82), (0.66, 0.18)],
@@ -30,23 +30,23 @@ ICONS = {
 }
 
 
-def point_in_poly(x, y, poly):
+def point_in_polygon(x, y, polygon):
     inside = False
-    n = len(poly)
-    j = n - 1
-    for i in range(n):
-        xi, yi = poly[i]
-        xj, yj = poly[j]
+    count = len(polygon)
+    j = count - 1
+    for i in range(count):
+        xi, yi = polygon[i]
+        xj, yj = polygon[j]
         if (yi > y) != (yj > y):
-            xc = xi + (y - yi) * (xj - xi) / (yj - yi)
-            if x < xc:
+            crossing = xi + (y - yi) * (xj - xi) / (yj - yi)
+            if x < crossing:
                 inside = not inside
         j = i
     return inside
 
 
-def render(polys, size):
-    buf = bytearray(size * size * 4)
+def render(polygons, size):
+    buffer = bytearray(size * size * 4)
     for py in range(size):
         for px in range(size):
             hits = 0
@@ -54,16 +54,16 @@ def render(polys, size):
                 for sx in range(SS):
                     gx = (px + (sx + 0.5) / SS) / size
                     gy = 1.0 - (py + (sy + 0.5) / SS) / size
-                    if any(point_in_poly(gx, gy, p) for p in polys):
+                    if any(point_in_polygon(gx, gy, p) for p in polygons):
                         hits += 1
             if not hits:
                 continue
             i = (py * size + px) * 4
-            buf[i] = DARK[0]
-            buf[i + 1] = DARK[1]
-            buf[i + 2] = DARK[2]
-            buf[i + 3] = int(round(255 * hits / (SS * SS)))
-    return bytes(buf)
+            buffer[i] = DARK[0]
+            buffer[i + 1] = DARK[1]
+            buffer[i + 2] = DARK[2]
+            buffer[i + 3] = int(round(255 * hits / (SS * SS)))
+    return bytes(buffer)
 
 
 def write_png(path, size, rgba):
@@ -78,18 +78,18 @@ def write_png(path, size, rgba):
     png += chunk(b'IHDR', struct.pack('>IIBBBBB', size, size, 8, 6, 0, 0, 0))
     png += chunk(b'IDAT', zlib.compress(raw, 9))
     png += chunk(b'IEND', b'')
-    with open(path, 'wb') as fh:
-        fh.write(png)
+    with open(path, 'wb') as handle:
+        handle.write(png)
 
 
 def main():
-    for name, polys in ICONS.items():
+    for name, polygons in ICONS.items():
         folder = os.path.join(BASE, name)
         os.makedirs(folder, exist_ok=True)
         for size in (16, 32, 64):
             write_png(os.path.join(folder, '%dx%d.png' % (size, size)),
-                      size, render(polys, size))
-        print('geschrieben:', folder)
+                      size, render(polygons, size))
+        print('written:', folder)
 
 
 if __name__ == '__main__':

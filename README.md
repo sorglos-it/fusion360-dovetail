@@ -32,7 +32,7 @@ Three tooth shapes ship with it: the **trapezoid** dovetail with a real undercut
 
 ## Installation
 
-1. Copy the `Schwalbenschwanz` folder into the Fusion add-ins directory:
+1. Copy the `Dovetail` folder into the Fusion add-ins directory:
 
    | OS | Path |
    |---|---|
@@ -105,13 +105,15 @@ Triangle, 10 mm wide, 6 mm deep, 0.25 mm tolerance: the mating tip sits at 5.609
 
 The UI language comes from **Preferences → General → User Language** in Fusion. German, English, Spanish, French and Italian are included; anything else falls back to English.
 
-The strings live in `Schwalbenschwanz/lang/<code>.xml`, one file per language:
+The strings live in `Dovetail/lang/<code>.xml`, one file per language:
 
 ```xml
 <string key="in.width">Width (base)</string>
 ```
 
-`en.xml` is the reference — every key exists there, and a key missing from another file falls back to it. To add a language, copy `en.xml`, translate the values, name it after the two-letter code and add the code to `SUPPORTED_LANGUAGES` and `FUSION_LANGUAGE_MAP` in `Schwalbenschwanz.py`. The placeholders `{0}` must survive translation; `tools/test_geometry.py` checks that for every file.
+`en.xml` is the reference — every key exists there, and a key missing from another file falls back to it. To add a language, copy `en.xml`, translate the values, name it after the two-letter code and add the code to `SUPPORTED_LANGUAGES` and `FUSION_LANGUAGE_MAP` in `Dovetail.py`. The placeholders `{0}` must survive translation; `tools/test_geometry.py` checks that for every file.
+
+Nothing outside these files is translated. Identifiers, comments and keys are English throughout, so a translator never has to touch the code.
 
 ## How it works
 
@@ -128,7 +130,7 @@ The strings live in `Schwalbenschwanz/lang/<code>.xml`, one file per language:
 - **The preview does not delete the original line.** Deleting the selected entity during `executePreview` risks invalidating the selection, so the preview draws the contour over the line and only `execute` removes it. The preview therefore looks marginally busier than the result.
 - **Both contours land in the same sketch.** That is the point — they are two halves of one joint — but it does mean the sketch contains overlapping profiles. Extrude the outer one for the pocket part and the inner one for the pin part.
 - **Tolerance is clearance, not shrinkage compensation.** For FDM prints, 0.2 – 0.3 mm is a reasonable start; elephant's foot and over-extrusion on the first layers come on top and are not modelled here.
-- **The add-in folder is named `Schwalbenschwanz`.** That is only the identifier Fusion loads; the interface itself is translated. Renaming it means renaming the folder, the `.py` and the `.manifest` together.
+- **Upgrading from 1.1.x means deleting the old folder.** Up to 1.1.0 the add-in was called `Schwalbenschwanz`. Stop it in Fusion first, remove the old folder from the add-ins directory, then install `Dovetail` — otherwise both register and you get two buttons.
 
 ## Development
 
@@ -148,7 +150,7 @@ python tools/make_icons.py
 python tools/make_arrow_icons.py
 ```
 
-All three scripts resolve paths relative to the repository. Set `SS_ADDIN_DIR` to point them at an installed copy instead.
+All three scripts resolve paths relative to the repository. Set `DOVETAIL_ADDIN_DIR` to point them at an installed copy instead.
 
 ## Support this project ❤️
 

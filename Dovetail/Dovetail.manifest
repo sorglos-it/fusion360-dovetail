@@ -10,7 +10,7 @@
         "fr-FR": "Cree des assemblages a queue d'aronde, triangulaires ou a peigne sur une ligne d'esquisse, contour d'accouplement avec tolerance inclus.",
         "it-IT": "Crea giunti a coda di rondine, triangolari o a pettine su una linea di schizzo, incluso il profilo di accoppiamento con tolleranza."
     },
-    "version": "1.1.0",
+    "version": "1.2.0",
     "runOnStartup": true,
     "supportedOS": "windows|mac",
     "editEnabled": true
