@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<strings language="es">
+
+  <!-- Comando -->
+  <string key="cmd.name">Cola de milano</string>
+  <string key="cmd.tooltip">Crea colas de milano sobre una línea de boceto.
+Selecciona una línea y ajusta cantidad / tamaño / profundidad / tolerancia.</string>
+
+  <!-- Campos -->
+  <string key="in.line">Línea</string>
+  <string key="in.line.prompt">Selecciona una línea de boceto</string>
+  <string key="in.count">Cantidad</string>
+  <string key="in.shape">Forma</string>
+  <string key="shape.trapez">Trapecio (cola de milano)</string>
+  <string key="shape.triangle">Triángulo</string>
+  <string key="shape.rect">Rectángulo (unión de caja)</string>
+  <string key="in.width">Anchura (base)</string>
+  <string key="in.depth">Profundidad</string>
+  <string key="in.angle">Ángulo de flanco</string>
+  <string key="in.spacing">Separación (centro a centro)</string>
+  <string key="in.shift">Desplazamiento</string>
+  <string key="in.step">Incremento</string>
+  <string key="in.nudge">Desplazar</string>
+  <string key="nudge.left">A la izquierda (hacia el punto inicial)</string>
+  <string key="nudge.center">Centrar</string>
+  <string key="nudge.right">A la derecha (hacia el punto final)</string>
+  <string key="nudge.tooltip">Desplaza el dentado un incremento a lo largo de la línea. Limitado al rango en el que sigue cabiendo por completo en la línea.</string>
+  <string key="in.tol">Tolerancia</string>
+  <string key="in.flip">Invertir la dirección</string>
+  <string key="in.mate">Crear contorno de acoplamiento (tolerancia)</string>
+  <string key="in.replace">Sustituir la línea original</string>
+
+  <!-- Comprobaciones -->
+  <string key="err.no_line">Selecciona exactamente una línea de boceto.</string>
+  <string key="err.no_length">La línea seleccionada no tiene longitud.</string>
+  <string key="err.width">La anchura debe ser mayor que 0.</string>
+  <string key="err.depth">La profundidad debe ser mayor que 0.</string>
+  <string key="err.tol_neg">La tolerancia no puede ser negativa.</string>
+  <string key="err.count">Se necesita al menos una cola de milano.</string>
+  <string key="err.angle_range">El ángulo de flanco debe estar entre -89 y 89 grados.</string>
+  <string key="err.angle_neg">Ángulo de flanco demasiado negativo - el diente se reduce a cero.</string>
+  <string key="err.spacing_pos">La separación debe ser mayor que 0.</string>
+  <string key="err.spacing_small">La separación es demasiado pequeña - las colas de milano se solaparían. Se necesitan al menos {0} mm.</string>
+  <string key="err.shift_range">El desplazamiento empuja el dentado más allá del final de la línea. Como máximo son posibles +/- {0} mm.</string>
+  <string key="err.too_long">El dentado es más ancho que la línea seleccionada ({0} mm). Reduce la cantidad, la anchura o la separación.</string>
+  <string key="err.miter">El contorno de acoplamiento se descontrola en una esquina afilada.
+Haz el diente más plano (menos profundidad / más anchura) o reduce la tolerancia.</string>
+  <string key="err.tol_eats">La tolerancia se come el diente entero. Reduce la tolerancia o aumenta la profundidad.</string>
+  <string key="err.tol_depth">La tolerancia es demasiado grande en relación con la profundidad.</string>
+  <string key="err.tol_width">La tolerancia es demasiado grande en relación con la anchura.</string>
+  <string key="err.degenerate">El contorno está degenerado.</string>
+
+  <!-- Mensajes -->
+  <string key="msg.panel_missing">No se encontró ningún panel de barra de herramientas adecuado.</string>
+  <string key="msg.exec_failed">Error al crear la geometría:
+{0}</string>
+  <string key="msg.dialog_failed">Error al construir el cuadro de diálogo:
+{0}</string>
+  <string key="msg.run_failed">Error al iniciar:
+{0}</string>
+  <string key="msg.stop_failed">Error al detener:
+{0}</string>
+
+</strings>

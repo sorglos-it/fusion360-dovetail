@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<strings language="fr">
+
+  <!-- Commande -->
+  <string key="cmd.name">Queue d'aronde</string>
+  <string key="cmd.tooltip">Crée des queues d'aronde sur une ligne d'esquisse.
+Sélectionnez une ligne, puis réglez nombre / taille / profondeur / tolérance.</string>
+
+  <!-- Entrées -->
+  <string key="in.line">Ligne</string>
+  <string key="in.line.prompt">Sélectionner une ligne d'esquisse</string>
+  <string key="in.count">Nombre</string>
+  <string key="in.shape">Forme</string>
+  <string key="shape.trapez">Trapèze (queue d'aronde)</string>
+  <string key="shape.triangle">Triangle</string>
+  <string key="shape.rect">Rectangle (assemblage à peigne)</string>
+  <string key="in.width">Largeur (base)</string>
+  <string key="in.depth">Profondeur</string>
+  <string key="in.angle">Angle de flanc</string>
+  <string key="in.spacing">Entraxe (centre à centre)</string>
+  <string key="in.shift">Décalage</string>
+  <string key="in.step">Pas de déplacement</string>
+  <string key="in.nudge">Déplacer</string>
+  <string key="nudge.left">Vers la gauche (vers le point de départ)</string>
+  <string key="nudge.center">Centrer</string>
+  <string key="nudge.right">Vers la droite (vers le point d'arrivée)</string>
+  <string key="nudge.tooltip">Déplace la denture d'un pas le long de la ligne. Limité à la plage où elle tient encore entièrement sur la ligne.</string>
+  <string key="in.tol">Tolérance</string>
+  <string key="in.flip">Inverser la direction</string>
+  <string key="in.mate">Créer le contour d'accouplement (tolérance)</string>
+  <string key="in.replace">Remplacer la ligne d'origine</string>
+
+  <!-- Contrôles -->
+  <string key="err.no_line">Sélectionnez exactement une ligne d'esquisse.</string>
+  <string key="err.no_length">La ligne sélectionnée n'a aucune longueur.</string>
+  <string key="err.width">La largeur doit être supérieure à 0.</string>
+  <string key="err.depth">La profondeur doit être supérieure à 0.</string>
+  <string key="err.tol_neg">La tolérance ne peut pas être négative.</string>
+  <string key="err.count">Au moins une queue d'aronde est nécessaire.</string>
+  <string key="err.angle_range">L'angle de flanc doit être compris entre -89 et 89 degrés.</string>
+  <string key="err.angle_neg">Angle de flanc trop négatif - la dent se réduit à néant.</string>
+  <string key="err.spacing_pos">L'entraxe doit être supérieur à 0.</string>
+  <string key="err.spacing_small">L'entraxe est trop faible - les queues d'aronde se chevaucheraient. Il faut au moins {0} mm.</string>
+  <string key="err.shift_range">Le décalage pousse la denture au-delà de l'extrémité de la ligne. Au maximum +/- {0} mm est possible.</string>
+  <string key="err.too_long">La denture est plus large que la ligne sélectionnée ({0} mm). Réduisez le nombre, la largeur ou l'entraxe.</string>
+  <string key="err.miter">Le contour d'accouplement dérape dans un angle aigu.
+Aplatissez la dent (moins de profondeur / plus de largeur) ou réduisez la tolérance.</string>
+  <string key="err.tol_eats">La tolérance dévore toute la dent. Réduisez la tolérance ou augmentez la profondeur.</string>
+  <string key="err.tol_depth">La tolérance est trop grande par rapport à la profondeur.</string>
+  <string key="err.tol_width">La tolérance est trop grande par rapport à la largeur.</string>
+  <string key="err.degenerate">Le contour est dégénéré.</string>
+
+  <!-- Messages -->
+  <string key="msg.panel_missing">Aucun panneau de barre d'outils approprié n'a été trouvé.</string>
+  <string key="msg.exec_failed">Erreur lors de la création de la géométrie :
+{0}</string>
+  <string key="msg.dialog_failed">Erreur lors de la construction de la boîte de dialogue :
+{0}</string>
+  <string key="msg.run_failed">Échec du démarrage :
+{0}</string>
+  <string key="msg.stop_failed">Échec de l'arrêt :
+{0}</string>
+
+</strings>

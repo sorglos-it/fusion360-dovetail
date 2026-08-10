@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<strings language="de">
+
+  <!-- Befehl -->
+  <string key="cmd.name">Schwalbenschwanz</string>
+  <string key="cmd.tooltip">Erzeugt Schwalbenschwänze auf einer Skizzenlinie.
+Linie wählen, dann Anzahl / Größe / Tiefe / Toleranz einstellen.</string>
+
+  <!-- Eingaben -->
+  <string key="in.line">Linie</string>
+  <string key="in.line.prompt">Skizzenlinie wählen</string>
+  <string key="in.count">Anzahl</string>
+  <string key="in.shape">Form</string>
+  <string key="shape.trapez">Trapez (Schwalbenschwanz)</string>
+  <string key="shape.triangle">Dreieck</string>
+  <string key="shape.rect">Rechteck (Fingerzinken)</string>
+  <string key="in.width">Breite (Basis)</string>
+  <string key="in.depth">Tiefe</string>
+  <string key="in.angle">Flankenwinkel</string>
+  <string key="in.spacing">Abstand (Mitte-Mitte)</string>
+  <string key="in.shift">Verschiebung</string>
+  <string key="in.step">Schrittweite</string>
+  <string key="in.nudge">Verschieben</string>
+  <string key="nudge.left">Nach links (Richtung Startpunkt)</string>
+  <string key="nudge.center">Zentrieren</string>
+  <string key="nudge.right">Nach rechts (Richtung Endpunkt)</string>
+  <string key="nudge.tooltip">Verschiebt die Verzahnung um eine Schrittweite entlang der Linie. Begrenzt auf den Bereich, in dem sie noch komplett auf der Linie liegt.</string>
+  <string key="in.tol">Toleranz</string>
+  <string key="in.flip">Richtung umkehren</string>
+  <string key="in.mate">Gegenkontur (Toleranz) erzeugen</string>
+  <string key="in.replace">Originallinie ersetzen</string>
+
+  <!-- Prüfungen -->
+  <string key="err.no_line">Bitte genau eine Skizzenlinie wählen.</string>
+  <string key="err.no_length">Die gewählte Linie hat keine Länge.</string>
+  <string key="err.width">Die Breite muss größer als 0 sein.</string>
+  <string key="err.depth">Die Tiefe muss größer als 0 sein.</string>
+  <string key="err.tol_neg">Die Toleranz darf nicht negativ sein.</string>
+  <string key="err.count">Es wird mindestens ein Schwalbenschwanz gebraucht.</string>
+  <string key="err.angle_range">Der Flankenwinkel muss zwischen -89 und 89 Grad liegen.</string>
+  <string key="err.angle_neg">Flankenwinkel zu steil negativ - der Zahn läuft auf 0 zu.</string>
+  <string key="err.spacing_pos">Der Abstand muss größer als 0 sein.</string>
+  <string key="err.spacing_small">Der Abstand ist zu klein - die Schwalbenschwänze würden sich überschneiden. Nötig sind mindestens {0} mm.</string>
+  <string key="err.shift_range">Die Verschiebung schiebt die Verzahnung über das Linienende hinaus. Möglich sind höchstens +/- {0} mm.</string>
+  <string key="err.too_long">Die Verzahnung ist breiter als die gewählte Linie ({0} mm). Anzahl, Breite oder Abstand verkleinern.</string>
+  <string key="err.miter">Die Toleranzkontur läuft an einer spitzen Ecke aus dem Ruder.
+Zahn flacher machen (kleinere Tiefe / größere Breite) oder die Toleranz verringern.</string>
+  <string key="err.tol_eats">Die Toleranz frisst den Zahn komplett auf. Toleranz verkleinern oder Tiefe vergrößern.</string>
+  <string key="err.tol_depth">Die Toleranz ist im Verhältnis zur Tiefe zu groß.</string>
+  <string key="err.tol_width">Die Toleranz ist im Verhältnis zur Breite zu groß.</string>
+  <string key="err.degenerate">Die Kontur ist entartet.</string>
+
+  <!-- Meldungen -->
+  <string key="msg.panel_missing">Kein passendes Toolbar-Panel gefunden.</string>
+  <string key="msg.exec_failed">Fehler beim Erzeugen der Geometrie:
+{0}</string>
+  <string key="msg.dialog_failed">Fehler beim Aufbau des Dialogs:
+{0}</string>
+  <string key="msg.run_failed">Start fehlgeschlagen:
+{0}</string>
+  <string key="msg.stop_failed">Stopp fehlgeschlagen:
+{0}</string>
+
+</strings>

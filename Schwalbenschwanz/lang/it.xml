@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<strings language="it">
+
+  <!-- Comando -->
+  <string key="cmd.name">Coda di rondine</string>
+  <string key="cmd.tooltip">Crea code di rondine su una linea di schizzo.
+Seleziona una linea, poi imposta numero / dimensione / profondità / tolleranza.</string>
+
+  <!-- Campi -->
+  <string key="in.line">Linea</string>
+  <string key="in.line.prompt">Seleziona una linea di schizzo</string>
+  <string key="in.count">Numero</string>
+  <string key="in.shape">Forma</string>
+  <string key="shape.trapez">Trapezio (coda di rondine)</string>
+  <string key="shape.triangle">Triangolo</string>
+  <string key="shape.rect">Rettangolo (giunto a pettine)</string>
+  <string key="in.width">Larghezza (base)</string>
+  <string key="in.depth">Profondità</string>
+  <string key="in.angle">Angolo dei fianchi</string>
+  <string key="in.spacing">Passo (centro-centro)</string>
+  <string key="in.shift">Spostamento</string>
+  <string key="in.step">Incremento</string>
+  <string key="in.nudge">Sposta</string>
+  <string key="nudge.left">A sinistra (verso il punto iniziale)</string>
+  <string key="nudge.center">Centra</string>
+  <string key="nudge.right">A destra (verso il punto finale)</string>
+  <string key="nudge.tooltip">Sposta la dentatura di un incremento lungo la linea. Limitato all'intervallo in cui rimane interamente sulla linea.</string>
+  <string key="in.tol">Tolleranza</string>
+  <string key="in.flip">Inverti direzione</string>
+  <string key="in.mate">Crea il profilo di accoppiamento (tolleranza)</string>
+  <string key="in.replace">Sostituisci la linea originale</string>
+
+  <!-- Controlli -->
+  <string key="err.no_line">Seleziona esattamente una linea di schizzo.</string>
+  <string key="err.no_length">La linea selezionata ha lunghezza zero.</string>
+  <string key="err.width">La larghezza deve essere maggiore di 0.</string>
+  <string key="err.depth">La profondità deve essere maggiore di 0.</string>
+  <string key="err.tol_neg">La tolleranza non può essere negativa.</string>
+  <string key="err.count">Serve almeno una coda di rondine.</string>
+  <string key="err.angle_range">L'angolo dei fianchi deve essere compreso tra -89 e 89 gradi.</string>
+  <string key="err.angle_neg">Angolo dei fianchi troppo negativo - il dente si annulla.</string>
+  <string key="err.spacing_pos">Il passo deve essere maggiore di 0.</string>
+  <string key="err.spacing_small">Il passo è troppo piccolo - le code di rondine si sovrapporrebbero. Servono almeno {0} mm.</string>
+  <string key="err.shift_range">Lo spostamento porta la dentatura oltre la fine della linea. Al massimo sono possibili +/- {0} mm.</string>
+  <string key="err.too_long">La dentatura è più larga della linea selezionata ({0} mm). Riduci il numero, la larghezza o il passo.</string>
+  <string key="err.miter">Il profilo di accoppiamento sbanda in uno spigolo acuto.
+Rendi il dente più basso (meno profondità / più larghezza) oppure riduci la tolleranza.</string>
+  <string key="err.tol_eats">La tolleranza divora l'intero dente. Riduci la tolleranza o aumenta la profondità.</string>
+  <string key="err.tol_depth">La tolleranza è troppo grande rispetto alla profondità.</string>
+  <string key="err.tol_width">La tolleranza è troppo grande rispetto alla larghezza.</string>
+  <string key="err.degenerate">Il profilo è degenere.</string>
+
+  <!-- Messaggi -->
+  <string key="msg.panel_missing">Nessun pannello della barra degli strumenti adatto trovato.</string>
+  <string key="msg.exec_failed">Errore durante la creazione della geometria:
+{0}</string>
+  <string key="msg.dialog_failed">Errore durante la costruzione della finestra di dialogo:
+{0}</string>
+  <string key="msg.run_failed">Avvio non riuscito:
+{0}</string>
+  <string key="msg.stop_failed">Arresto non riuscito:
+{0}</string>
+
+</strings>

@@ -1,0 +1,17 @@
+{
+    "autodeskProduct": "Fusion360",
+    "type": "addin",
+    "id": "9f3c1a72-5d84-4b1e-9c2a-7e6d4b8f0a13",
+    "author": "Thomas Weirich",
+    "description": {
+        "": "Creates dovetail, triangle or box joints on a sketch line, including the tolerance mating contour.",
+        "de-DE": "Erzeugt Schwalbenschwanz-, Dreieck- oder Fingerzinken-Verzahnungen auf einer Skizzenlinie inklusive Toleranz-Gegenkontur.",
+        "es-ES": "Crea uniones de cola de milano, triangulares o de caja sobre una linea de boceto, incluido el contorno de acoplamiento con tolerancia.",
+        "fr-FR": "Cree des assemblages a queue d'aronde, triangulaires ou a peigne sur une ligne d'esquisse, contour d'accouplement avec tolerance inclus.",
+        "it-IT": "Crea giunti a coda di rondine, triangolari o a pettine su una linea di schizzo, incluso il profilo di accoppiamento con tolleranza."
+    },
+    "version": "1.1.0",
+    "runOnStartup": true,
+    "supportedOS": "windows|mac",
+    "editEnabled": true
+}
