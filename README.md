@@ -13,7 +13,7 @@ The tolerance is not a guess applied to one edge. The mating contour is a **true
 
 Three tooth shapes ship with it: the **trapezoid** dovetail with a real undercut (the default), a **triangle**, and a **rectangle** for box joints. The interface follows whatever language Fusion is set to.
 
-See also **[fusion360-addin-template](https://github.com/sorglos-it/fusion360-addin-template)** — the scaffolding this add-in was extracted into. One command gives you the same translated interface, live preview, validation and offline test harness as a starting point for your own add-in.
+See also **[fusion360-sketch-grid](https://github.com/sorglos-it/fusion360-sketch-grid)** — grids of shapes around a sketch point — and **[fusion360-addin-template](https://github.com/sorglos-it/fusion360-addin-template)**, the scaffolding this add-in was extracted into. One command gives you the same translated interface, live preview, validation and offline test harness as a starting point for your own add-in.
 
 ## Features
 
