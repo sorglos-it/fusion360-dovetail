@@ -38,17 +38,18 @@ See also **[fusion360-sketch-grid](https://github.com/sorglos-it/fusion360-sketc
 
 ## Installation
 
-1. Copy the `Dovetail` folder into the Fusion add-ins directory:
+1. Download the latest `Dovetail-*.zip` from **[Releases](https://github.com/sorglos-it/fusion360-dovetail/releases)** — or clone this repository and use the `Dovetail` folder as it is.
+2. Unpack it into the Fusion add-ins directory, so that `Dovetail\Dovetail.py` ends up one level below it:
 
    | OS | Path |
    |---|---|
    | Windows | `%APPDATA%\Autodesk\Autodesk Fusion 360\API\AddIns\` |
    | macOS | `~/Library/Application Support/Autodesk/Autodesk Fusion 360/API/AddIns/` |
 
-2. In Fusion: **Utilities → ADD-INS → Add-Ins**, select the entry, tick *Run on Startup*, press **Run**.
-3. The button appears on the **SKETCH** tab in the **CREATE** panel, with the installed version in brackets after its name — *Dovetail (1.4.1)* — so the dialog title says which version you are on.
+3. In Fusion: **Utilities → ADD-INS → Add-Ins**, select the entry, tick *Run on Startup*, press **Run**.
+4. The button appears on the **SKETCH** tab in the **CREATE** panel, with the installed version in brackets after its name — *Dovetail (1.4.1)* — so the dialog title says which version you are on.
 
-Keep the folder name and the file names in sync — Fusion requires `<Folder>/<Folder>.py` and `<Folder>/<Folder>.manifest` to match.
+Replacing an older copy: stop the add-in in Fusion first, otherwise the running one stays in memory. Keep the folder name and the file names in sync — Fusion requires `<Folder>/<Folder>.py` and `<Folder>/<Folder>.manifest` to match.
 
 ## Usage
 
