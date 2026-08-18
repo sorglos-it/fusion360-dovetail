@@ -27,16 +27,21 @@ Sélectionnez une ligne, puis réglez nombre / taille / profondeur / tolérance.
   <string key="nudge.right">Vers la droite (vers le point d'arrivée)</string>
   <string key="nudge.tooltip">Déplace la denture d'un pas le long de la ligne. Limité à la plage où elle tient encore entièrement sur la ligne.</string>
   <string key="in.tolerance">Tolérance</string>
+  <string key="in.reference">La ligne est</string>
+  <string key="reference.center">Ligne médiane - la moitié de la tolérance de chaque côté</string>
+  <string key="reference.pocket">Bord de la mortaise - toute la tolérance sur le tenon</string>
+  <string key="reference.pin">Bord du tenon - toute la tolérance sur la mortaise</string>
+  <string key="reference.tooltip">Détermine quelle pièce cède de la matière pour le jeu. Médian laisse égales deux moitiés égales ; les deux autres prennent toute la tolérance sur une seule pièce et laissent l'autre exactement sur la ligne.</string>
+  <string key="construction.tooltip">La bande traverse la ligne, qui la découperait donc en deux profils. En géométrie de construction, elle ne crée aucun profil mais conserve ses cotes et ses contraintes, que la suppression ferait perdre.</string>
   <string key="in.flip">Inverser la direction</string>
-  <string key="in.mate">Créer le contour d'accouplement (tolérance)</string>
-  <string key="in.replace">Remplacer la ligne d'origine</string>
+  <string key="in.construction">Convertir la ligne d'origine en géométrie de construction</string>
 
   <!-- Validation -->
   <string key="err.no_line">Sélectionnez exactement une ligne d'esquisse.</string>
   <string key="err.zero_length">La ligne sélectionnée n'a aucune longueur.</string>
   <string key="err.width">La largeur doit être supérieure à 0.</string>
   <string key="err.depth">La profondeur doit être supérieure à 0.</string>
-  <string key="err.tolerance_negative">La tolérance ne peut pas être négative.</string>
+  <string key="err.tolerance_zero">Une bande fermée exige une tolérance supérieure à 0.</string>
   <string key="err.count">Au moins une queue d'aronde est nécessaire.</string>
   <string key="err.angle_range">L'angle de flanc doit être compris entre -89 et 89 degrés.</string>
   <string key="err.angle_negative">Angle de flanc trop négatif - la dent se réduit à néant.</string>

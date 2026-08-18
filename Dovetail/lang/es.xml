@@ -27,16 +27,21 @@ Selecciona una línea y ajusta cantidad / tamaño / profundidad / tolerancia.</s
   <string key="nudge.right">A la derecha (hacia el punto final)</string>
   <string key="nudge.tooltip">Desplaza el dentado un incremento a lo largo de la línea. Limitado al rango en el que sigue cabiendo por completo en la línea.</string>
   <string key="in.tolerance">Tolerancia</string>
+  <string key="in.reference">La línea es</string>
+  <string key="reference.center">Línea media - media tolerancia por lado</string>
+  <string key="reference.pocket">Borde de la caja - toda la tolerancia en la espiga</string>
+  <string key="reference.pin">Borde de la espiga - toda la tolerancia en la caja</string>
+  <string key="reference.tooltip">Decide qué pieza cede material para el juego. Centrado mantiene iguales dos mitades iguales; las otras dos quitan toda la tolerancia de una sola pieza y dejan la otra exactamente sobre la línea.</string>
+  <string key="construction.tooltip">La banda cruza la línea, que por tanto la cortaría en dos perfiles. Como geometría de construcción no crea ningún perfil pero conserva sus cotas y restricciones, que al borrarla se perderían.</string>
   <string key="in.flip">Invertir la dirección</string>
-  <string key="in.mate">Crear contorno de acoplamiento (tolerancia)</string>
-  <string key="in.replace">Sustituir la línea original</string>
+  <string key="in.construction">Convertir la línea original en geometría de construcción</string>
 
   <!-- Validation -->
   <string key="err.no_line">Selecciona exactamente una línea de boceto.</string>
   <string key="err.zero_length">La línea seleccionada no tiene longitud.</string>
   <string key="err.width">La anchura debe ser mayor que 0.</string>
   <string key="err.depth">La profundidad debe ser mayor que 0.</string>
-  <string key="err.tolerance_negative">La tolerancia no puede ser negativa.</string>
+  <string key="err.tolerance_zero">Una banda cerrada necesita una tolerancia mayor que 0.</string>
   <string key="err.count">Se necesita al menos una cola de milano.</string>
   <string key="err.angle_range">El ángulo de flanco debe estar entre -89 y 89 grados.</string>
   <string key="err.angle_negative">Ángulo de flanco demasiado negativo - el diente se reduce a cero.</string>

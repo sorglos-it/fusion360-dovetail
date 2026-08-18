@@ -27,16 +27,21 @@ Seleziona una linea, poi imposta numero / dimensione / profondità / tolleranza.
   <string key="nudge.right">A destra (verso il punto finale)</string>
   <string key="nudge.tooltip">Sposta la dentatura di un incremento lungo la linea. Limitato all'intervallo in cui rimane interamente sulla linea.</string>
   <string key="in.tolerance">Tolleranza</string>
+  <string key="in.reference">La linea è</string>
+  <string key="reference.center">Linea mediana - metà tolleranza per lato</string>
+  <string key="reference.pocket">Bordo della cava - tutta la tolleranza sul tenone</string>
+  <string key="reference.pin">Bordo del tenone - tutta la tolleranza sulla cava</string>
+  <string key="reference.tooltip">Stabilisce quale pezzo cede materiale per il gioco. Centrato mantiene uguali due metà uguali; gli altri due tolgono l'intera tolleranza da un solo pezzo e lasciano l'altro esattamente sulla linea.</string>
+  <string key="construction.tooltip">La fascia attraversa la linea, che quindi la taglierebbe in due profili. Come geometria di costruzione non crea alcun profilo ma conserva quote e vincoli, che eliminandola andrebbero persi.</string>
   <string key="in.flip">Inverti direzione</string>
-  <string key="in.mate">Crea il profilo di accoppiamento (tolleranza)</string>
-  <string key="in.replace">Sostituisci la linea originale</string>
+  <string key="in.construction">Converti la linea originale in geometria di costruzione</string>
 
   <!-- Validation -->
   <string key="err.no_line">Seleziona esattamente una linea di schizzo.</string>
   <string key="err.zero_length">La linea selezionata ha lunghezza zero.</string>
   <string key="err.width">La larghezza deve essere maggiore di 0.</string>
   <string key="err.depth">La profondità deve essere maggiore di 0.</string>
-  <string key="err.tolerance_negative">La tolleranza non può essere negativa.</string>
+  <string key="err.tolerance_zero">Una fascia chiusa richiede una tolleranza maggiore di 0.</string>
   <string key="err.count">Serve almeno una coda di rondine.</string>
   <string key="err.angle_range">L'angolo dei fianchi deve essere compreso tra -89 e 89 gradi.</string>
   <string key="err.angle_negative">Angolo dei fianchi troppo negativo - il dente si annulla.</string>

@@ -7,9 +7,11 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Donate](https://img.shields.io/badge/Donate-PayPal-00457C.svg?logo=paypal)](https://www.paypal.com/donate/?hosted_button_id=6CDEVZGJWTNQQ)
 
-A Fusion 360 add-in that turns **one sketch line into a finished joint**. Pick a line, press the button, and you get the nominal contour sitting on the line plus a second contour shrunk by the tolerance — the pocket and the pin, both ready to extrude, in a single sketch.
+A Fusion 360 add-in that turns **one sketch line into a finished joint**. Pick a line, press the button, and you get a single closed profile: the **clearance itself**, a band of exactly the tolerance following the tooth outline. Cut that band out of one solid and you are left with two parts that fit.
 
-The tolerance is not a guess applied to one edge. The mating contour is a **true parallel offset of the whole outline**, so the clearance is identical on the base face, on both flanks and over the tip.
+The tolerance is not a guess applied to one edge. Both sides of the band are **true parallel offsets of the same outline**, so the clearance is identical on the base face, on both flanks and over the tip.
+
+You decide which part pays for it. Centred is the default and takes half from each, which keeps two equal halves equal; the other two settings take the whole tolerance out of one part and leave the other exactly on the line.
 
 Three tooth shapes ship with it: the **trapezoid** dovetail with a real undercut (the default), a **triangle**, and a **rectangle** for box joints. The interface follows whatever language Fusion is set to.
 
@@ -17,8 +19,9 @@ See also **[fusion360-sketch-grid](https://github.com/sorglos-it/fusion360-sketc
 
 ## Features
 
-- **One line in, two contours out** — nominal (pocket) and mating (pin), correct relative to each other by construction
+- **One line in, one closed profile out** — the clearance band, ready to extrude-cut in a single operation
 - **Uniform clearance** — a real parallel offset, verified to the last floating-point digit by the test suite
+- **You choose who pays** — half from each part, or all of it from one
 - **Three shapes** — trapezoid with flank angle (undercut, holds under load), triangle, rectangle (box / finger joint)
 - **Always centred on the line** — odd counts put a tooth on the midpoint, even counts put the gap there
 - **Nudge buttons** — ◀ / centre / ▶ shift the whole set along the line and stop themselves at the point where it would run off the end
@@ -67,10 +70,10 @@ Keep the folder name and the file names in sync — Fusion requires `<Folder>/<F
 | **Offset** | Shift of the whole set along the line. 0 = centred. Type a value or use the buttons. |
 | **Step size** | How far one click of ◀ / ▶ moves. Default 1 mm. |
 | **Move ◀ ▮ ▶** | ◀ towards the start point, ▶ towards the end point, the middle button resets to the centre. |
-| **Tolerance** | Clearance between the two parts. Default **0.25 mm**. 0 skips the mating contour. |
+| **Tolerance** | Clearance between the two parts. Default **0.25 mm**, and it has to be above 0 — the band is made of it. |
+| **The line is** | `Centre line` (default, half the tolerance each side), `Pocket edge` (all of it on the pin), `Pin edge` (all of it on the pocket). |
 | **Flip direction** | Teeth to the other side of the line. |
-| **Create mating contour** | Draw the second, smaller contour. |
-| **Replace the original line** | On: the line is deleted and the nominal contour runs end to end. Off: the line stays and only the tooth outlines are drawn. |
+| **Turn the original line into construction geometry** | On by default. The band spans across the line, so leaving the line as normal geometry cuts the band into two profiles. |
 
 ## Alignment
 
@@ -90,18 +93,26 @@ An odd count puts a tooth on the midpoint, an even count puts the gap there, and
 
 ## How the tolerance works
 
-The mating contour is the nominal contour offset by the tolerance towards the pin side. That means, simultaneously:
+Two contours are built from the same zero-clearance outline: the **pocket**, offset outwards, and the **pin**, offset inwards. They are joined at both ends into one closed loop — the band between them is the clearance, and it is the full tolerance everywhere: base face, both flanks, over the tip.
 
-- the base line drops by the tolerance below the selected line,
-- both flanks move inwards by the tolerance,
-- the tip loses the corresponding height.
+**The line is** decides how that tolerance is split. With a 0.25 mm tolerance:
 
-Which gives the assignment:
+| Setting | Pocket sits at | Pin sits at | Gap |
+|---|---|---|---|
+| `Centre line` (default) | +0.125 mm | −0.125 mm | 0.25 mm |
+| `Pocket edge` | on the line | −0.25 mm | 0.25 mm |
+| `Pin edge` | +0.25 mm | on the line | 0.25 mm |
 
-- **Nominal contour** (on the line) → the part with the **pocket**
-- **Mating contour** (the smaller one) → the part with the **pin**
+Centred is what you want when the line is the middle of the joint and both halves should stay the size you drew them. The other two are for when the line *is* one part's edge and only the other may lose material.
 
-Triangle, 10 mm wide, 6 mm deep, 0.25 mm tolerance: the mating tip sits at 5.609 mm instead of 6.000 mm, and the gap measured perpendicular to any flank is 0.25 mm.
+## Turning the band into two parts
+
+1. Draw the outline of the whole piece, with the joint line running across it.
+2. Run the command on that line.
+3. Extrude the outline into a solid.
+4. Extrude-cut the band through it.
+
+What is left are two bodies that mate with the tolerance you asked for. The original line becomes construction geometry so it does not cut the band in half — its dimensions and constraints survive, which deleting it would not.
 
 ## Languages
 
@@ -127,10 +138,10 @@ Nothing outside these files is translated. Identifiers, comments and keys are En
 
 ## Notes & caveats
 
-- **Replacing the line drops its constraints.** Dimensions and relations attached to the original line die with it. The new contour starts and ends on the exact old endpoints, so adjacent geometry still closes into a profile — Fusion detects profiles geometrically, not from constraints.
+- **The band needs a tolerance above 0.** At zero the two contours coincide and there is no area to enclose, so the command refuses rather than drawing a degenerate loop.
+- **The line has to stop making profiles.** Fusion detects profiles geometrically, so a normal line crossing the band splits it in two. Converting it to construction geometry is the fix, and it keeps the dimensions and constraints that deleting the line would throw away.
 - **A triangle is not a dovetail.** It has no undercut; it is a wedge and will pull apart under load. It is included because it is the simplest shape that indexes two parts against each other, not because it holds. Use the trapezoid where the joint has to resist tension.
 - **The preview does not delete the original line.** Deleting the selected entity during `executePreview` risks invalidating the selection, so the preview draws the contour over the line and only `execute` removes it. The preview therefore looks marginally busier than the result.
-- **Both contours land in the same sketch.** That is the point — they are two halves of one joint — but it does mean the sketch contains overlapping profiles. Extrude the outer one for the pocket part and the inner one for the pin part.
 - **Tolerance is clearance, not shrinkage compensation.** For FDM prints, 0.2 – 0.3 mm is a reasonable start; elephant's foot and over-extrusion on the first layers come on top and are not modelled here.
 - **Upgrading from 1.1.x means deleting the old folder.** Up to 1.1.0 the add-in was called `Schwalbenschwanz`. Stop it in Fusion first, remove the old folder from the add-ins directory, then install `Dovetail` — otherwise both register and you get two buttons.
 

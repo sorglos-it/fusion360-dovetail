@@ -2,9 +2,9 @@
 """
 Dovetail - Fusion 360 add-in
 
-Turns a selected sketch line into a joint: the nominal contour (the pocket)
-sits on the line, and a second contour shrunk by the tolerance (the pin) sits
-inside it.
+Turns a selected sketch line into a joint: a pocket contour and a pin contour
+that clear each other by the tolerance everywhere. Which part pays for that
+clearance - both by half, or one of them in full - is what the line stands for.
 
 The interface follows the language Fusion is set to. All display text lives in
 lang/<code>.xml; a key missing from a file falls back to lang/en.xml.
@@ -56,9 +56,9 @@ IN_OFFSET = 'dtOffset'
 IN_STEP = 'dtStep'
 IN_NUDGE = 'dtNudge'
 IN_TOLERANCE = 'dtTolerance'
+IN_REFERENCE = 'dtReference'
 IN_FLIP = 'dtFlip'
-IN_REPLACE = 'dtReplace'
-IN_MATE = 'dtMate'
+IN_CONSTRUCTION = 'dtConstruction'
 
 # Tooth shapes. The order is also the order in the drop-down, and the stored
 # value is the index - independent of the display language.
@@ -66,6 +66,15 @@ SHAPE_TRAPEZOID = 0
 SHAPE_TRIANGLE = 1
 SHAPE_RECTANGLE = 2
 SHAPE_KEYS = ('shape.trapezoid', 'shape.triangle', 'shape.rectangle')
+
+# What the selected line stands for, and therefore which part pays for the
+# clearance. The pair is (how far the pocket grows, how far the pin shrinks),
+# as a fraction of the tolerance; the two always add up to 1.
+REF_CENTER = 0
+REF_POCKET = 1
+REF_PIN = 2
+REF_KEYS = ('reference.center', 'reference.pocket', 'reference.pin')
+REF_SPLIT = ((0.5, 0.5), (0.0, 1.0), (1.0, 0.0))
 
 NUDGE_LEFT = 0
 NUDGE_CENTER = 1
@@ -90,9 +99,9 @@ _last = {
     IN_SPACING: 2.0,        # 20 mm
     IN_STEP: 0.1,           # 1 mm
     IN_TOLERANCE: 0.025,    # 0.25 mm
+    IN_REFERENCE: REF_CENTER,
     IN_FLIP: False,
-    IN_REPLACE: True,
-    IN_MATE: True,
+    IN_CONSTRUCTION: True,
 }
 
 
@@ -284,11 +293,17 @@ def max_offset(length, count, spacing, width, depth, angle, shape):
 
 
 def build_contours(length, count, spacing, width, depth, angle, tolerance,
-                   shape, offset=0.0):
-    """Build the nominal and the mating contour in local coordinates.
+                   shape, offset=0.0, reference=REF_CENTER):
+    """Build the pocket and the pin contour in local coordinates.
 
     s runs along the line from its start point, h is perpendicular to it in
     the direction the teeth point.
+
+    The nominal outline is the zero-clearance boundary the two parts share. The
+    tolerance is then split between them according to `reference`: the pocket
+    grows outwards by its share, the pin shrinks inwards by the rest, and the
+    gap between the two is the full tolerance either way. Centred means both
+    parts give up half, which keeps two equal halves equal.
     """
     if length <= EPS:
         raise GeometryError('err.zero_length')
@@ -296,8 +311,8 @@ def build_contours(length, count, spacing, width, depth, angle, tolerance,
         raise GeometryError('err.width')
     if depth <= EPS:
         raise GeometryError('err.depth')
-    if tolerance < 0:
-        raise GeometryError('err.tolerance_negative')
+    if tolerance <= EPS:
+        raise GeometryError('err.tolerance_zero')
     if count < 1:
         raise GeometryError('err.count')
 
@@ -332,22 +347,39 @@ def build_contours(length, count, spacing, width, depth, angle, tolerance,
         nominal.append((centre + half, 0.0))
     nominal.append((length, 0.0))
 
-    if tolerance <= EPS:
-        return nominal, None
+    grow, shrink = REF_SPLIT[reference]
+    outward = tolerance * grow          # how far the pocket opens up
+    inward = tolerance * shrink         # how far the pin is pulled back
 
-    mate = _offset_polyline(nominal, tolerance)
+    # A negative distance offsets to the left of the run, which is away from
+    # the teeth - that is the direction the pocket has to open in.
+    pocket = _offset_polyline(nominal, -outward) if outward > EPS else nominal
+    pin = _offset_polyline(nominal, inward) if inward > EPS else nominal
 
-    # Sanity: the tooth has to survive above the offset base line (h = -tolerance)
+    # Sanity: the tooth has to survive above its own base line (h = -inward)
     # and must not run into itself.
-    peak = max(p[1] for p in mate)
-    if peak <= -tolerance + EPS:
+    peak = max(p[1] for p in pin)
+    if peak <= -inward + EPS:
         raise GeometryError('err.tolerance_eats_tooth')
-    if (peak + tolerance) < 0.05 * depth:
+    if (peak + inward) < 0.05 * depth:
         raise GeometryError('err.tolerance_vs_depth')
     if 2 * tolerance >= width:
         raise GeometryError('err.tolerance_vs_width')
 
-    return nominal, mate
+    return pocket, pin
+
+
+def closed_band(pocket, pin):
+    """Join the two contours into one closed loop.
+
+    Runs along the pocket, drops across at the far end, comes back along the
+    pin and closes at the near end. What it encloses is the clearance itself:
+    a band of exactly the tolerance following the tooth outline, so cutting it
+    out of one solid leaves two parts that fit.
+    """
+    if len(pocket) != len(pin):
+        raise GeometryError('err.degenerate')
+    return list(pocket) + list(reversed(pin))
 
 
 # ------------------------------------------------------------------- Drawing --
@@ -370,20 +402,19 @@ def _draw_polyline(sketch, points, origin, u, n):
             previous = lines.addByTwoPoints(previous.endSketchPoint, end)
 
 
-def _tooth_segments(points):
-    """The tooth outlines only, without the stretches lying on the line."""
-    chunks = []
-    current = []
-    for point in points:
-        if abs(point[1]) <= EPS:
-            if current:
-                current.append(point)
-                chunks.append(current)
-                current = []
-            current = [point]
+def _draw_closed_polyline(sketch, points, origin, u, n):
+    """Draw points as a closed loop, the last segment tying back to the first."""
+    lines = sketch.sketchCurves.sketchLines
+    first = previous = None
+    for i in range(len(points) - 1):
+        end = _to_world(points[i + 1], origin, u, n)
+        if previous is None:
+            first = previous = lines.addByTwoPoints(
+                _to_world(points[i], origin, u, n), end)
         else:
-            current.append(point)
-    return [c for c in chunks if len(c) > 2]
+            previous = lines.addByTwoPoints(previous.endSketchPoint, end)
+    if first is not None:
+        lines.addByTwoPoints(previous.endSketchPoint, first.startSketchPoint)
 
 
 def line_length(line):
@@ -393,7 +424,7 @@ def line_length(line):
 
 
 def create_geometry(line, count, spacing, width, depth, angle, tolerance, flip,
-                    shape, offset, replace_line, make_mate, delete_original):
+                    shape, offset, reference, to_construction, modify_original):
     sketch = line.parentSketch
     start = line.startSketchPoint.geometry
     end = line.endSketchPoint.geometry
@@ -408,21 +439,19 @@ def create_geometry(line, count, spacing, width, depth, angle, tolerance, flip,
     if flip:
         n = (-n[0], -n[1])
 
-    nominal, mate = build_contours(length, count, spacing, width, depth,
-                                   angle, tolerance, shape, offset)
+    pocket, pin = build_contours(length, count, spacing, width, depth,
+                                 angle, tolerance, shape, offset, reference)
+    band = closed_band(pocket, pin)
 
     sketch.isComputeDeferred = True
     try:
-        if replace_line:
-            if delete_original:
-                line.deleteMe()
-            _draw_polyline(sketch, nominal, origin, u, n)
-        else:
-            for chunk in _tooth_segments(nominal):
-                _draw_polyline(sketch, chunk, origin, u, n)
-
-        if make_mate and mate:
-            _draw_polyline(sketch, mate, origin, u, n)
+        # The original line runs straight through the band and would cut it
+        # into two profiles. Turning it into construction geometry stops it
+        # creating profiles while keeping its dimensions and constraints,
+        # which deleting it would throw away.
+        if to_construction and modify_original and not line.isConstruction:
+            line.isConstruction = True
+        _draw_closed_polyline(sketch, band, origin, u, n)
     finally:
         sketch.isComputeDeferred = False
 
@@ -431,7 +460,9 @@ def create_geometry(line, count, spacing, width, depth, angle, tolerance, flip,
 
 def _read_inputs(inputs):
     shape_item = inputs.itemById(IN_SHAPE).selectedItem
+    reference_item = inputs.itemById(IN_REFERENCE).selectedItem
     return dict(
+        reference=reference_item.index if reference_item else REF_CENTER,
         count=inputs.itemById(IN_COUNT).value,
         shape=shape_item.index if shape_item else SHAPE_TRAPEZOID,
         width=inputs.itemById(IN_WIDTH).value,
@@ -442,8 +473,7 @@ def _read_inputs(inputs):
         step=inputs.itemById(IN_STEP).value,
         tolerance=inputs.itemById(IN_TOLERANCE).value,
         flip=inputs.itemById(IN_FLIP).value,
-        replace_line=inputs.itemById(IN_REPLACE).value,
-        make_mate=inputs.itemById(IN_MATE).value,
+        to_construction=inputs.itemById(IN_CONSTRUCTION).value,
     )
 
 
@@ -457,7 +487,7 @@ def _selected_line(inputs):
     return None
 
 
-def _run(inputs, delete_original):
+def _run(inputs, modify_original):
     line = _selected_line(inputs)
     if not line:
         raise GeometryError('err.no_line')
@@ -465,7 +495,8 @@ def _run(inputs, delete_original):
     create_geometry(line, values['count'], values['spacing'], values['width'],
                     values['depth'], values['angle'], values['tolerance'],
                     values['flip'], values['shape'], values['offset'],
-                    values['replace_line'], values['make_mate'], delete_original)
+                    values['reference'], values['to_construction'],
+                    modify_original)
     return values
 
 
@@ -473,14 +504,15 @@ class ExecuteHandler(adsk.core.CommandEventHandler):
     def notify(self, args):
         try:
             values = _run(args.firingEvent.sender.commandInputs,
-                          delete_original=True)
+                          modify_original=True)
             _last.update({
                 IN_COUNT: values['count'], IN_SHAPE: values['shape'],
                 IN_WIDTH: values['width'], IN_DEPTH: values['depth'],
                 IN_ANGLE: values['angle'], IN_SPACING: values['spacing'],
                 IN_STEP: values['step'], IN_TOLERANCE: values['tolerance'],
-                IN_FLIP: values['flip'], IN_REPLACE: values['replace_line'],
-                IN_MATE: values['make_mate'],
+                IN_REFERENCE: values['reference'],
+                IN_CONSTRUCTION: values['to_construction'],
+                IN_FLIP: values['flip'],
             })
         except GeometryError as err:
             adsk.core.Application.get().userInterface.messageBox(str(err), T('cmd.name'))
@@ -492,9 +524,9 @@ class ExecuteHandler(adsk.core.CommandEventHandler):
 class PreviewHandler(adsk.core.CommandEventHandler):
     def notify(self, args):
         try:
-            # The original line is kept during the preview so the selection
-            # cannot be invalidated underneath the dialog.
-            _run(args.firingEvent.sender.commandInputs, delete_original=False)
+            # The original line is left alone during the preview so the
+            # selection cannot be invalidated underneath the dialog.
+            _run(args.firingEvent.sender.commandInputs, modify_original=False)
             args.isValidResult = False
         except GeometryError:
             pass
@@ -513,7 +545,8 @@ class ValidateHandler(adsk.core.ValidateInputsEventHandler):
             values = _read_inputs(inputs)
             build_contours(line_length(line), values['count'], values['spacing'],
                            values['width'], values['depth'], values['angle'],
-                           values['tolerance'], values['shape'], values['offset'])
+                           values['tolerance'], values['shape'], values['offset'],
+                           values['reference'])
             args.areInputsValid = True
         except GeometryError:
             args.areInputsValid = False
@@ -578,6 +611,7 @@ class InputChangedHandler(adsk.core.InputChangedEventHandler):
             shape = shape_item.index if shape_item else SHAPE_TRAPEZOID
             inputs.itemById(IN_ANGLE).isEnabled = shape == SHAPE_TRAPEZOID
             inputs.itemById(IN_SPACING).isEnabled = inputs.itemById(IN_COUNT).value > 1
+
         except Exception:
             pass
 
@@ -636,10 +670,18 @@ class CommandCreatedHandler(adsk.core.CommandCreatedEventHandler):
             inputs.addValueInput(IN_TOLERANCE, T('in.tolerance'), 'mm',
                                  adsk.core.ValueInput.createByReal(_last[IN_TOLERANCE]))
 
+            reference = inputs.addDropDownCommandInput(
+                IN_REFERENCE, T('in.reference'),
+                adsk.core.DropDownStyles.TextListDropDownStyle)
+            for index, key in enumerate(REF_KEYS):
+                reference.listItems.add(T(key), index == _last[IN_REFERENCE])
+            reference.tooltip = T('reference.tooltip')
+
             inputs.addBoolValueInput(IN_FLIP, T('in.flip'), True, '', _last[IN_FLIP])
-            inputs.addBoolValueInput(IN_MATE, T('in.mate'), True, '', _last[IN_MATE])
-            inputs.addBoolValueInput(IN_REPLACE, T('in.replace'), True, '',
-                                     _last[IN_REPLACE])
+            construction = inputs.addBoolValueInput(
+                IN_CONSTRUCTION, T('in.construction'), True, '',
+                _last[IN_CONSTRUCTION])
+            construction.tooltip = T('construction.tooltip')
 
             if preselected and selection.selectionCount == 0:
                 selection.addSelection(preselected[0])

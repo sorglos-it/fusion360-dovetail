@@ -90,7 +90,7 @@ check(len(dt.SHAPE_KEYS) == 3, 'three shapes with a text key')
 
 print('2) Trapezoid 15 deg, 3 teeth, L=200mm W=12mm D=8mm spacing=25mm')
 nominal, mate = dt.build_contours(200 * MM, 3, 25 * MM, 12 * MM, 8 * MM,
-                                  math.radians(15), 0.25 * MM, dt.SHAPE_TRAPEZOID)
+                                  math.radians(15), 0.25 * MM, dt.SHAPE_TRAPEZOID, 0.0, dt.REF_POCKET)
 check(len(nominal) == 2 + 3 * 4, 'nominal contour has %d points (expected 14)' % len(nominal))
 top_half = 6 * MM + 8 * MM * math.tan(math.radians(15))
 check(abs((nominal[1][0] - nominal[2][0]) - (top_half - 6 * MM)) < 1e-12,
@@ -103,7 +103,7 @@ verify_offset(nominal, mate, 0.25 * MM)
 
 print('3) Triangle, 1 tooth, L=100mm W=10mm D=6mm tolerance=0.25mm')
 nominal, mate = dt.build_contours(100 * MM, 1, 20 * MM, 10 * MM, 6 * MM,
-                                  math.radians(15), 0.25 * MM, dt.SHAPE_TRIANGLE)
+                                  math.radians(15), 0.25 * MM, dt.SHAPE_TRIANGLE, 0.0, dt.REF_POCKET)
 check(len(nominal) == 5, 'nominal contour has 5 points (%d)' % len(nominal))
 check(abs(nominal[2][0] - 50 * MM) < 1e-12 and abs(nominal[2][1] - 6 * MM) < 1e-12,
       'tip centred at 50/6 mm')
@@ -117,7 +117,7 @@ verify_offset(nominal, mate, 0.25 * MM)
 
 print('4) Rectangle (box joint), 4 teeth')
 nominal, mate = dt.build_contours(200 * MM, 4, 30 * MM, 12 * MM, 8 * MM,
-                                  math.radians(15), 0.25 * MM, dt.SHAPE_RECTANGLE)
+                                  math.radians(15), 0.25 * MM, dt.SHAPE_RECTANGLE, 0.0, dt.REF_POCKET)
 check(len(nominal) == 2 + 4 * 4, 'nominal contour has %d points (expected 18)' % len(nominal))
 check(abs(nominal[1][0] - nominal[2][0]) < 1e-12
       and abs(nominal[3][0] - nominal[4][0]) < 1e-12,
@@ -137,7 +137,7 @@ length = 300 * MM
 midpoint = length / 2
 for count in (1, 2, 3, 4, 5):
     nominal, _ = dt.build_contours(length, count, 30 * MM, 10 * MM, 6 * MM, 0.0,
-                                   0.25 * MM, dt.SHAPE_TRIANGLE)
+                                   0.25 * MM, dt.SHAPE_TRIANGLE, 0.0, dt.REF_POCKET)
     relative = [(x - midpoint) * 10
                 for x in tooth_centres(nominal, count, dt.SHAPE_TRIANGLE)]
     check(abs(sum(relative)) < 1e-9,
@@ -155,14 +155,14 @@ for count in (1, 2, 3, 4, 5):
 
 print('6) Offset (the left / right buttons)')
 nominal, mate = dt.build_contours(length, 3, 30 * MM, 10 * MM, 6 * MM, 0.0,
-                                  0.25 * MM, dt.SHAPE_TRIANGLE, offset=12 * MM)
+                                  0.25 * MM, dt.SHAPE_TRIANGLE, reference=dt.REF_POCKET, offset=12 * MM)
 check(abs(tooth_centres(nominal, 3, dt.SHAPE_TRIANGLE)[1] - (midpoint + 12 * MM)) < 1e-12,
       'offset of +12 mm moves the group')
 check(abs(nominal[0][0]) < 1e-12 and abs(nominal[-1][0] - length) < 1e-12,
       'contour still starts and ends at the line ends')
 verify_offset(nominal, mate, 0.25 * MM)
 nominal_left, _ = dt.build_contours(length, 3, 30 * MM, 10 * MM, 6 * MM, 0.0,
-                                    0.25 * MM, dt.SHAPE_TRIANGLE, offset=-12 * MM)
+                                    0.25 * MM, dt.SHAPE_TRIANGLE, reference=dt.REF_POCKET, offset=-12 * MM)
 check(abs(tooth_centres(nominal_left, 3, dt.SHAPE_TRIANGLE)[1]
           - (midpoint - 12 * MM)) < 1e-12, 'offset of -12 mm moves the group')
 
@@ -170,7 +170,7 @@ limit = dt.max_offset(length, 3, 30 * MM, 10 * MM, 6 * MM, 0.0, dt.SHAPE_TRIANGL
 check(abs(limit - (150 - 30 - 5) * MM) < 1e-12,
       'max_offset is 115 mm (%.3f mm)' % (limit * 10))
 dt.build_contours(length, 3, 30 * MM, 10 * MM, 6 * MM, 0.0, 0.25 * MM,
-                  dt.SHAPE_TRIANGLE, offset=limit)
+                  dt.SHAPE_TRIANGLE, reference=dt.REF_POCKET, offset=limit)
 check(True, 'an offset exactly at the limit is still valid')
 expect_error('err.offset_range',
              (length, 3, 30 * MM, 10 * MM, 6 * MM, 0.0, 0.25 * MM,
@@ -184,7 +184,75 @@ limit_rectangle = dt.max_offset(200 * MM, 1, 25 * MM, 12 * MM, 8 * MM, 0.0,
 check(abs(limit_rectangle - (100 - 6) * MM) < 1e-12,
       'max_offset for the rectangle is 94 mm')
 
-print('7) Failures report the right key')
+print('7) Who pays for the clearance')
+TOL = 0.25 * MM
+
+
+def contours(reference):
+    return dt.build_contours(100 * MM, 2, 30 * MM, 10 * MM, 6 * MM,
+                             math.radians(15), TOL, dt.SHAPE_TRAPEZOID,
+                             0.0, reference)
+
+
+check(dt._last[dt.IN_REFERENCE] == dt.REF_CENTER,
+      'the centred split is the default')
+check(len(dt.REF_KEYS) == len(dt.REF_SPLIT) == 3, 'three entries with a text key')
+for index, (grow, shrink) in enumerate(dt.REF_SPLIT):
+    check(abs(grow + shrink - 1.0) < 1e-12,
+          '%s: the two shares add up to the whole tolerance' % dt.REF_KEYS[index])
+
+expected_base = {
+    dt.REF_POCKET: (0.0, -TOL),         # line is the pocket, the pin gives way
+    dt.REF_PIN: (TOL, 0.0),             # line is the pin, the pocket opens up
+    dt.REF_CENTER: (TOL / 2, -TOL / 2),  # both give up half
+}
+for reference, (pocket_base, pin_base) in expected_base.items():
+    pocket, pin = contours(reference)
+    check(abs(pocket[0][1] - pocket_base) < 1e-12,
+          '%s: pocket base at %+.3f mm' % (dt.REF_KEYS[reference], pocket[0][1] * 10))
+    check(abs(pin[0][1] - pin_base) < 1e-12,
+          '%s: pin base at %+.3f mm' % (dt.REF_KEYS[reference], pin[0][1] * 10))
+    # Whatever the split, the gap between the two parts stays the tolerance.
+    verify_offset(pocket, pin, TOL)
+
+print('   the bug this fixes: two equal halves stay equal')
+pocket, pin = contours(dt.REF_CENTER)
+check(abs(pocket[0][1] + pin[0][1]) < 1e-12,
+      'centred: the two bases are symmetric about the line (%+.4f / %+.4f mm)'
+      % (pocket[0][1] * 10, pin[0][1] * 10))
+pocket_off, pin_off = contours(dt.REF_POCKET)
+check(abs(pocket_off[0][1]) < 1e-12 and abs(pin_off[0][1] + TOL) < 1e-12,
+      'pocket edge: the whole 0.25 mm comes off the pin, as before this change')
+
+print('   the two contours close into one band')
+pocket, pin = contours(dt.REF_CENTER)
+band = dt.closed_band(pocket, pin)
+check(len(band) == len(pocket) + len(pin),
+      'the band walks the pocket out and the pin back (%d points)' % len(band))
+check(band[0] == pocket[0] and band[len(pocket) - 1] == pocket[-1],
+      'first half is the pocket, in order')
+check(band[len(pocket)] == pin[-1] and band[-1] == pin[0],
+      'second half is the pin, reversed')
+check(abs(band[len(pocket) - 1][0] - band[len(pocket)][0]) < 1e-12,
+      'the far end cap is perpendicular to the line')
+check(abs(band[-1][0] - band[0][0]) < 1e-12,
+      'the near end cap is perpendicular to the line')
+cap_far = abs(band[len(pocket) - 1][1] - band[len(pocket)][1])
+cap_near = abs(band[-1][1] - band[0][1])
+check(abs(cap_far - TOL) < 1e-12 and abs(cap_near - TOL) < 1e-12,
+      'both caps are exactly the tolerance wide (%.3f / %.3f mm)'
+      % (cap_far * 10, cap_near * 10))
+check(len(set(band)) == len(band), 'no repeated point, so no zero-length segment')
+
+print('   a tolerance of 0 has no band to enclose')
+try:
+    dt.build_contours(100 * MM, 1, 20 * MM, 10 * MM, 6 * MM,
+                      math.radians(15), 0.0, dt.SHAPE_TRAPEZOID, 0.0, dt.REF_CENTER)
+    check(False, 'tolerance 0 should have been refused')
+except dt.GeometryError as err:
+    check(err.key == 'err.tolerance_zero', 'tolerance 0 -> %s  "%s"' % (err.key, err))
+
+print('8) Failures report the right key')
 expect_error('err.spacing_too_small',
              (100 * MM, 3, 5 * MM, 12 * MM, 8 * MM, math.radians(15), 0.25 * MM,
               dt.SHAPE_TRAPEZOID), 'spacing too small')
@@ -203,7 +271,7 @@ expect_error('err.depth',
 expect_error('err.zero_length',
              (0.0, 1, 20 * MM, 10 * MM, 6 * MM, math.radians(15), 0.25 * MM,
               dt.SHAPE_TRIANGLE), 'line without length')
-expect_error('err.tolerance_negative',
+expect_error('err.tolerance_zero',
              (100 * MM, 1, 20 * MM, 10 * MM, 6 * MM, math.radians(15), -0.1 * MM,
               dt.SHAPE_TRIANGLE), 'negative tolerance')
 expect_error('err.angle_range',
@@ -213,24 +281,18 @@ expect_error('err.angle_negative',
              (100 * MM, 1, 20 * MM, 10 * MM, 6 * MM, math.radians(-60), 0.25 * MM,
               dt.SHAPE_TRAPEZOID), 'flank angle of -60 deg')
 
-print('8) A tolerance of 0 yields the nominal contour only')
-_nominal, no_mate = dt.build_contours(100 * MM, 1, 20 * MM, 10 * MM, 6 * MM,
-                                      math.radians(15), 0.0, dt.SHAPE_TRIANGLE)
-check(no_mate is None, 'no mating contour at a tolerance of 0')
+print('10b) Every drop-down entry has a text of its own')
+_en = ElementTree.parse(os.path.join(ADDIN, 'lang', 'en.xml')).getroot()
+_en_keys = set(node.get('key') for node in _en.findall('string'))
+for label, keys in (('shape', dt.SHAPE_KEYS), ('reference', dt.REF_KEYS)):
+    missing = [k for k in keys if k not in _en_keys]
+    check(not missing, '%s: all %d entries present%s'
+          % (label, len(keys), '' if not missing else ' - missing %s' % missing))
+for key in ('in.reference', 'reference.tooltip', 'construction.tooltip',
+            'in.construction', 'err.tolerance_zero'):
+    check(key in _en_keys, '%s present' % key)
 
-print('9) Tooth outlines without the base stretches (keep-the-line mode)')
-nominal, _ = dt.build_contours(200 * MM, 3, 25 * MM, 12 * MM, 8 * MM,
-                               math.radians(15), 0.25 * MM, dt.SHAPE_TRAPEZOID)
-chunks = dt._tooth_segments(nominal)
-check(len(chunks) == 3 and all(len(c) == 4 for c in chunks),
-      '3 trapezoid teeth with 4 points each')
-nominal_triangle, _ = dt.build_contours(100 * MM, 2, 30 * MM, 10 * MM, 6 * MM, 0.0,
-                                        0.25 * MM, dt.SHAPE_TRIANGLE)
-triangle_chunks = dt._tooth_segments(nominal_triangle)
-check(len(triangle_chunks) == 2 and all(len(c) == 3 for c in triangle_chunks),
-      '2 triangle teeth with 3 points each')
-
-print('10) Language files')
+print('11) Language files')
 lang_dir = os.path.join(ADDIN, 'lang')
 reference = {}
 for node in ElementTree.parse(os.path.join(lang_dir, 'en.xml')).getroot().findall('string'):
@@ -260,7 +322,7 @@ for code in dt.SUPPORTED_LANGUAGES:
     check(all(value.strip() for value in strings.values()),
           '%s.xml has no empty texts' % code)
 
-print('11) Text catalogue and language detection')
+print('12) Text catalogue and language detection')
 for code in dt.SUPPORTED_LANGUAGES:
     dt.S.load(code)
     check(dt.S.code == code and dt.T('cmd.name') != 'cmd.name',
@@ -273,7 +335,7 @@ check(dt.T('does.not.exist') == 'does.not.exist',
 dt.S.load('fr')
 error = None
 try:
-    dt.build_contours(0.0, 1, 1.0, 1.0, 1.0, 0.0, 0.0, dt.SHAPE_TRAPEZOID)
+    dt.build_contours(0.0, 1, 1.0, 1.0, 1.0, 0.0, 0.0, dt.SHAPE_TRAPEZOID, 0.0, dt.REF_POCKET)
 except dt.GeometryError as exc:
     error = exc
 check(error is not None and error.key == 'err.zero_length' and 'longueur' in str(error),

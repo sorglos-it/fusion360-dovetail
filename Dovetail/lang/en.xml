@@ -32,16 +32,21 @@ Pick a line, then set count / size / depth / tolerance.</string>
   <string key="nudge.right">Right (towards the end point)</string>
   <string key="nudge.tooltip">Moves the teeth along the line by one step. Limited to the range in which they still fit entirely on the line.</string>
   <string key="in.tolerance">Tolerance</string>
+  <string key="in.reference">The line is</string>
+  <string key="reference.center">Centre line - half the tolerance each side</string>
+  <string key="reference.pocket">Pocket edge - all the tolerance on the pin</string>
+  <string key="reference.pin">Pin edge - all the tolerance on the pocket</string>
+  <string key="reference.tooltip">Decides which part gives up material for the clearance. Centred keeps two equal halves equal; the other two take the whole tolerance out of one part and leave the other exactly on the line.</string>
+  <string key="construction.tooltip">The band spans across the line, so the line would cut it into two profiles. As construction geometry it creates no profile but keeps its dimensions and constraints, which deleting it would throw away.</string>
   <string key="in.flip">Flip direction</string>
-  <string key="in.mate">Create mating contour (tolerance)</string>
-  <string key="in.replace">Replace the original line</string>
+  <string key="in.construction">Turn the original line into construction geometry</string>
 
   <!-- Validation -->
   <string key="err.no_line">Please select exactly one sketch line.</string>
   <string key="err.zero_length">The selected line has no length.</string>
   <string key="err.width">The width must be greater than 0.</string>
   <string key="err.depth">The depth must be greater than 0.</string>
-  <string key="err.tolerance_negative">The tolerance must not be negative.</string>
+  <string key="err.tolerance_zero">A closed band needs a tolerance greater than 0.</string>
   <string key="err.count">At least one dovetail is required.</string>
   <string key="err.angle_range">The flank angle must be between -89 and 89 degrees.</string>
   <string key="err.angle_negative">The flank angle is too steeply negative - the tooth tapers away to nothing.</string>

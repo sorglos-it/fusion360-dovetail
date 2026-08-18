@@ -27,16 +27,21 @@ Linie wählen, dann Anzahl / Größe / Tiefe / Toleranz einstellen.</string>
   <string key="nudge.right">Nach rechts (Richtung Endpunkt)</string>
   <string key="nudge.tooltip">Verschiebt die Verzahnung um eine Schrittweite entlang der Linie. Begrenzt auf den Bereich, in dem sie noch komplett auf der Linie liegt.</string>
   <string key="in.tolerance">Toleranz</string>
+  <string key="in.reference">Die Linie ist</string>
+  <string key="reference.center">Mittellinie - halbe Toleranz je Seite</string>
+  <string key="reference.pocket">Kante der Tasche - Toleranz ganz beim Zapfen</string>
+  <string key="reference.pin">Kante des Zapfens - Toleranz ganz bei der Tasche</string>
+  <string key="reference.tooltip">Legt fest, welches Teil das Spiel bezahlt. Mittig lässt zwei gleiche Hälften gleich; die beiden anderen nehmen die volle Toleranz von einem Teil und lassen das andere genau auf der Linie.</string>
+  <string key="construction.tooltip">Das Band liegt quer über der Linie, die Linie würde es also in zwei Profile zerschneiden. Als Konstruktionslinie erzeugt sie kein Profil, behält aber Bemaßungen und Abhängigkeiten, die beim Löschen verloren gingen.</string>
   <string key="in.flip">Richtung umkehren</string>
-  <string key="in.mate">Gegenkontur (Toleranz) erzeugen</string>
-  <string key="in.replace">Originallinie ersetzen</string>
+  <string key="in.construction">Originallinie in Konstruktionslinie umwandeln</string>
 
   <!-- Validation -->
   <string key="err.no_line">Bitte genau eine Skizzenlinie wählen.</string>
   <string key="err.zero_length">Die gewählte Linie hat keine Länge.</string>
   <string key="err.width">Die Breite muss größer als 0 sein.</string>
   <string key="err.depth">Die Tiefe muss größer als 0 sein.</string>
-  <string key="err.tolerance_negative">Die Toleranz darf nicht negativ sein.</string>
+  <string key="err.tolerance_zero">Ein geschlossenes Band braucht eine Toleranz größer als 0.</string>
   <string key="err.count">Es wird mindestens ein Schwalbenschwanz gebraucht.</string>
   <string key="err.angle_range">Der Flankenwinkel muss zwischen -89 und 89 Grad liegen.</string>
   <string key="err.angle_negative">Flankenwinkel zu steil negativ - der Zahn läuft auf 0 zu.</string>
