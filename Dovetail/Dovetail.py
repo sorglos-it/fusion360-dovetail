@@ -10,7 +10,9 @@ The interface follows the language Fusion is set to. All display text lives in
 lang/<code>.xml; a key missing from a file falls back to lang/en.xml.
 """
 
+import io
 import os
+import json
 import math
 import traceback
 import xml.etree.ElementTree as ElementTree
@@ -57,6 +59,8 @@ IN_STEP = 'dtStep'
 IN_NUDGE = 'dtNudge'
 IN_TOLERANCE = 'dtTolerance'
 IN_REFERENCE = 'dtReference'
+IN_MIRROR = 'dtMirror'
+IN_VERSION = 'dtVersion'
 IN_FLIP = 'dtFlip'
 IN_CONSTRUCTION = 'dtConstruction'
 
@@ -100,6 +104,7 @@ _last = {
     IN_STEP: 0.1,           # 1 mm
     IN_TOLERANCE: 0.025,    # 0.25 mm
     IN_REFERENCE: REF_CENTER,
+    IN_MIRROR: False,
     IN_FLIP: False,
     IN_CONSTRUCTION: True,
 }
@@ -155,6 +160,28 @@ S = Strings()
 
 def T(key, *args):
     return S.get(key, *args)
+
+
+def read_version():
+    """Version string out of the manifest, so the dialog cannot drift from it."""
+    path = os.path.join(_APP_DIR, 'Dovetail.manifest')
+    try:
+        with io.open(path, encoding='utf-8') as handle:
+            return json.load(handle).get('version', '')
+    except Exception:
+        return ''
+
+
+def add_version_label(inputs):
+    """Small grey version in the bottom right corner of the dialog."""
+    version = read_version()
+    if not version:
+        return
+    box = inputs.addTextBoxCommandInput(
+        IN_VERSION, '',
+        '<div align="right"><font size="1" color="#808080">v%s</font></div>' % version,
+        1, True)
+    box.isFullWidth = True
 
 
 def detect_language():
@@ -292,8 +319,22 @@ def max_offset(length, count, spacing, width, depth, angle, shape):
     return max(0.0, length / 2.0 - span)
 
 
+def tooth_directions(count, mirror):
+    """Which way each tooth points, left to right: -1 down, +1 up.
+
+    Mirrored means the first half points down and the second half up. Turning
+    that contour 180 degrees about the midpoint of the line maps it onto
+    itself, so the two parts either side of the cut come out identical - one
+    file, printed twice, rotated. It only works out with an even count: a
+    middle tooth would have to point both ways at once.
+    """
+    if not mirror:
+        return [1.0] * count
+    return [-1.0 if i < count // 2 else 1.0 for i in range(count)]
+
+
 def build_contours(length, count, spacing, width, depth, angle, tolerance,
-                   shape, offset=0.0, reference=REF_CENTER):
+                   shape, offset=0.0, reference=REF_CENTER, mirror=False):
     """Build the pocket and the pin contour in local coordinates.
 
     s runs along the line from its start point, h is perpendicular to it in
@@ -315,6 +356,14 @@ def build_contours(length, count, spacing, width, depth, angle, tolerance,
         raise GeometryError('err.tolerance_zero')
     if count < 1:
         raise GeometryError('err.count')
+    if mirror:
+        # Each of these breaks the 180 degree symmetry on its own.
+        if count % 2:
+            raise GeometryError('err.mirror_even')
+        if reference != REF_CENTER:
+            raise GeometryError('err.mirror_center')
+        if abs(offset) > EPS:
+            raise GeometryError('err.mirror_offset')
 
     half = width / 2.0
     top_half = _top_half(width, depth, angle, shape)
@@ -336,14 +385,16 @@ def build_contours(length, count, spacing, width, depth, angle, tolerance,
             raise GeometryError('err.offset_range', '%.2f' % (limit * 10.0))
         raise GeometryError('err.does_not_fit', '%.2f' % (length * 10.0))
 
+    directions = tooth_directions(count, mirror)
     nominal = [(0.0, 0.0)]
-    for centre in centres:
+    for centre, direction in zip(centres, directions):
+        tip = depth * direction
         nominal.append((centre - half, 0.0))
         if top_half <= EPS:
-            nominal.append((centre, depth))
+            nominal.append((centre, tip))
         else:
-            nominal.append((centre - top_half, depth))
-            nominal.append((centre + top_half, depth))
+            nominal.append((centre - top_half, tip))
+            nominal.append((centre + top_half, tip))
         nominal.append((centre + half, 0.0))
     nominal.append((length, 0.0))
 
@@ -356,12 +407,18 @@ def build_contours(length, count, spacing, width, depth, angle, tolerance,
     pocket = _offset_polyline(nominal, -outward) if outward > EPS else nominal
     pin = _offset_polyline(nominal, inward) if inward > EPS else nominal
 
-    # Sanity: the tooth has to survive above its own base line (h = -inward)
-    # and must not run into itself.
-    peak = max(p[1] for p in pin)
-    if peak <= -inward + EPS:
+    # Sanity: every tooth has to survive above its own part's base line. An
+    # upward tooth belongs to the lower part and is trimmed by `inward`; a
+    # downward one belongs to the upper part and is trimmed by `outward`.
+    heights = []
+    if any(d > 0 for d in directions):
+        heights.append(max(p[1] for p in pin) + inward)
+    if any(d < 0 for d in directions):
+        heights.append(outward - min(p[1] for p in pocket))
+    shortest = min(heights)
+    if shortest <= EPS:
         raise GeometryError('err.tolerance_eats_tooth')
-    if (peak + inward) < 0.05 * depth:
+    if shortest < 0.05 * depth:
         raise GeometryError('err.tolerance_vs_depth')
     if 2 * tolerance >= width:
         raise GeometryError('err.tolerance_vs_width')
@@ -424,7 +481,8 @@ def line_length(line):
 
 
 def create_geometry(line, count, spacing, width, depth, angle, tolerance, flip,
-                    shape, offset, reference, to_construction, modify_original):
+                    shape, offset, reference, mirror, to_construction,
+                    modify_original):
     sketch = line.parentSketch
     start = line.startSketchPoint.geometry
     end = line.endSketchPoint.geometry
@@ -440,7 +498,8 @@ def create_geometry(line, count, spacing, width, depth, angle, tolerance, flip,
         n = (-n[0], -n[1])
 
     pocket, pin = build_contours(length, count, spacing, width, depth,
-                                 angle, tolerance, shape, offset, reference)
+                                 angle, tolerance, shape, offset, reference,
+                                 mirror)
     band = closed_band(pocket, pin)
 
     sketch.isComputeDeferred = True
@@ -463,6 +522,7 @@ def _read_inputs(inputs):
     reference_item = inputs.itemById(IN_REFERENCE).selectedItem
     return dict(
         reference=reference_item.index if reference_item else REF_CENTER,
+        mirror=inputs.itemById(IN_MIRROR).value,
         count=inputs.itemById(IN_COUNT).value,
         shape=shape_item.index if shape_item else SHAPE_TRAPEZOID,
         width=inputs.itemById(IN_WIDTH).value,
@@ -495,8 +555,8 @@ def _run(inputs, modify_original):
     create_geometry(line, values['count'], values['spacing'], values['width'],
                     values['depth'], values['angle'], values['tolerance'],
                     values['flip'], values['shape'], values['offset'],
-                    values['reference'], values['to_construction'],
-                    modify_original)
+                    values['reference'], values['mirror'],
+                    values['to_construction'], modify_original)
     return values
 
 
@@ -511,6 +571,7 @@ class ExecuteHandler(adsk.core.CommandEventHandler):
                 IN_ANGLE: values['angle'], IN_SPACING: values['spacing'],
                 IN_STEP: values['step'], IN_TOLERANCE: values['tolerance'],
                 IN_REFERENCE: values['reference'],
+                IN_MIRROR: values['mirror'],
                 IN_CONSTRUCTION: values['to_construction'],
                 IN_FLIP: values['flip'],
             })
@@ -546,7 +607,7 @@ class ValidateHandler(adsk.core.ValidateInputsEventHandler):
             build_contours(line_length(line), values['count'], values['spacing'],
                            values['width'], values['depth'], values['angle'],
                            values['tolerance'], values['shape'], values['offset'],
-                           values['reference'])
+                           values['reference'], values['mirror'])
             args.areInputsValid = True
         except GeometryError:
             args.areInputsValid = False
@@ -595,6 +656,38 @@ def _apply_nudge(inputs, row):
         _updating = False
 
 
+def _apply_mirror(inputs):
+    """Hold the dialog to what a mirrored pattern actually needs.
+
+    An odd count, an off-centre split or a shifted group each destroy the
+    symmetry, so the count is rounded up to even and the other two are pinned
+    and greyed out rather than left to fail validation.
+    """
+    global _updating
+    mirror = inputs.itemById(IN_MIRROR).value
+    count_input = inputs.itemById(IN_COUNT)
+    offset_input = inputs.itemById(IN_OFFSET)
+    reference_input = inputs.itemById(IN_REFERENCE)
+
+    reference_input.isEnabled = not mirror
+    offset_input.isEnabled = not mirror
+    inputs.itemById(IN_STEP).isEnabled = not mirror
+    inputs.itemById(IN_NUDGE).isEnabled = not mirror
+    if not mirror:
+        return
+
+    _updating = True
+    try:
+        if count_input.value % 2:
+            count_input.value = min(count_input.value + 1, 500)
+        if abs(offset_input.value) > EPS:
+            offset_input.value = 0.0
+        if reference_input.selectedItem and                 reference_input.selectedItem.index != REF_CENTER:
+            reference_input.listItems.item(REF_CENTER).isSelected = True
+    finally:
+        _updating = False
+
+
 class InputChangedHandler(adsk.core.InputChangedEventHandler):
     def notify(self, args):
         if _updating:
@@ -611,6 +704,7 @@ class InputChangedHandler(adsk.core.InputChangedEventHandler):
             shape = shape_item.index if shape_item else SHAPE_TRAPEZOID
             inputs.itemById(IN_ANGLE).isEnabled = shape == SHAPE_TRAPEZOID
             inputs.itemById(IN_SPACING).isEnabled = inputs.itemById(IN_COUNT).value > 1
+            _apply_mirror(inputs)
 
         except Exception:
             pass
@@ -637,6 +731,10 @@ class CommandCreatedHandler(adsk.core.CommandCreatedEventHandler):
 
             inputs.addIntegerSpinnerCommandInput(
                 IN_COUNT, T('in.count'), 1, 500, 1, _last[IN_COUNT])
+
+            mirror = inputs.addBoolValueInput(IN_MIRROR, T('in.mirror'), True, '',
+                                              _last[IN_MIRROR])
+            mirror.tooltip = T('mirror.tooltip')
 
             shape = inputs.addDropDownCommandInput(
                 IN_SHAPE, T('in.shape'),
@@ -683,8 +781,12 @@ class CommandCreatedHandler(adsk.core.CommandCreatedEventHandler):
                 _last[IN_CONSTRUCTION])
             construction.tooltip = T('construction.tooltip')
 
+            # Last input, so it lands in the bottom right corner of the dialog.
+            add_version_label(inputs)
+
             if preselected and selection.selectionCount == 0:
                 selection.addSelection(preselected[0])
+            _apply_mirror(inputs)
 
             on_execute = ExecuteHandler()
             command.execute.add(on_execute)

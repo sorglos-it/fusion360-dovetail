@@ -11,6 +11,8 @@ Selecciona una línea y ajusta cantidad / tamaño / profundidad / tolerancia.</s
   <string key="in.line">Línea</string>
   <string key="in.line.prompt">Selecciona una línea de boceto</string>
   <string key="in.count">Cantidad</string>
+  <string key="in.mirror">Reflejar la geometría</string>
+  <string key="mirror.tooltip">La mitad de los dientes apunta hacia un lado y la otra mitad hacia el otro, dispuestos de modo que un giro de 180 grados alrededor del punto medio de la línea devuelve el contorno sobre sí mismo. Las dos piezas del corte salen así idénticas: un solo archivo, impreso dos veces, la segunda girada. Necesita un número par, el reparto centrado y ningún desplazamiento, que se ajustan solos.</string>
   <string key="in.shape">Forma</string>
   <string key="shape.trapezoid">Trapecio (cola de milano)</string>
   <string key="shape.triangle">Triángulo</string>
@@ -42,6 +44,9 @@ Selecciona una línea y ajusta cantidad / tamaño / profundidad / tolerancia.</s
   <string key="err.width">La anchura debe ser mayor que 0.</string>
   <string key="err.depth">La profundidad debe ser mayor que 0.</string>
   <string key="err.tolerance_zero">Una banda cerrada necesita una tolerancia mayor que 0.</string>
+  <string key="err.mirror_even">La geometría reflejada necesita un número par de dientes.</string>
+  <string key="err.mirror_center">La geometría reflejada solo funciona con la línea media, la única en la que ambas piezas ceden lo mismo.</string>
+  <string key="err.mirror_offset">La geometría reflejada necesita el desplazamiento a 0; si no, el patrón deja de ser simétrico respecto al punto medio de la línea.</string>
   <string key="err.count">Se necesita al menos una cola de milano.</string>
   <string key="err.angle_range">El ángulo de flanco debe estar entre -89 y 89 grados.</string>
   <string key="err.angle_negative">Ángulo de flanco demasiado negativo - el diente se reduce a cero.</string>

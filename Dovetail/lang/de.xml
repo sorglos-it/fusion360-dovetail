@@ -11,6 +11,8 @@ Linie wählen, dann Anzahl / Größe / Tiefe / Toleranz einstellen.</string>
   <string key="in.line">Linie</string>
   <string key="in.line.prompt">Skizzenlinie wählen</string>
   <string key="in.count">Anzahl</string>
+  <string key="in.mirror">Geometrie spiegeln</string>
+  <string key="mirror.tooltip">Die Hälfte der Zähne zeigt in die eine, die andere Hälfte in die andere Richtung - so angeordnet, dass die Kontur beim Drehen um 180 Grad um die Linienmitte auf sich selbst fällt. Beide Teile des Schnitts werden dadurch identisch: eine Datei, zweimal gedruckt, das zweite Teil gedreht. Braucht eine gerade Anzahl, die Mittellinie und keine Verschiebung, deshalb werden die drei mit gesetzt.</string>
   <string key="in.shape">Form</string>
   <string key="shape.trapezoid">Trapez (Schwalbenschwanz)</string>
   <string key="shape.triangle">Dreieck</string>
@@ -42,6 +44,9 @@ Linie wählen, dann Anzahl / Größe / Tiefe / Toleranz einstellen.</string>
   <string key="err.width">Die Breite muss größer als 0 sein.</string>
   <string key="err.depth">Die Tiefe muss größer als 0 sein.</string>
   <string key="err.tolerance_zero">Ein geschlossenes Band braucht eine Toleranz größer als 0.</string>
+  <string key="err.mirror_even">Gespiegelte Geometrie braucht eine gerade Anzahl Zähne.</string>
+  <string key="err.mirror_center">Gespiegelte Geometrie geht nur mit der Mittellinie, weil nur dort beide Teile gleich viel abgeben.</string>
+  <string key="err.mirror_offset">Gespiegelte Geometrie braucht die Verschiebung auf 0, sonst liegt das Muster nicht mehr symmetrisch zur Linienmitte.</string>
   <string key="err.count">Es wird mindestens ein Schwalbenschwanz gebraucht.</string>
   <string key="err.angle_range">Der Flankenwinkel muss zwischen -89 und 89 Grad liegen.</string>
   <string key="err.angle_negative">Flankenwinkel zu steil negativ - der Zahn läuft auf 0 zu.</string>

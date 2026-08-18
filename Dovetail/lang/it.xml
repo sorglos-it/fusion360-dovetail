@@ -11,6 +11,8 @@ Seleziona una linea, poi imposta numero / dimensione / profondità / tolleranza.
   <string key="in.line">Linea</string>
   <string key="in.line.prompt">Seleziona una linea di schizzo</string>
   <string key="in.count">Numero</string>
+  <string key="in.mirror">Rispecchia la geometria</string>
+  <string key="mirror.tooltip">Metà dei denti punta da una parte e metà dall'altra, disposti in modo che una rotazione di 180 gradi attorno alla mezzeria della linea riporti il profilo su se stesso. I due pezzi del taglio risultano così identici: un solo file, stampato due volte, il secondo ruotato. Richiede un numero pari, la divisione centrata e nessuno spostamento, che vengono impostati di conseguenza.</string>
   <string key="in.shape">Forma</string>
   <string key="shape.trapezoid">Trapezio (coda di rondine)</string>
   <string key="shape.triangle">Triangolo</string>
@@ -42,6 +44,9 @@ Seleziona una linea, poi imposta numero / dimensione / profondità / tolleranza.
   <string key="err.width">La larghezza deve essere maggiore di 0.</string>
   <string key="err.depth">La profondità deve essere maggiore di 0.</string>
   <string key="err.tolerance_zero">Una fascia chiusa richiede una tolleranza maggiore di 0.</string>
+  <string key="err.mirror_even">La geometria rispecchiata richiede un numero pari di denti.</string>
+  <string key="err.mirror_center">La geometria rispecchiata funziona solo con la linea mediana, l’unica in cui entrambi i pezzi cedono lo stesso.</string>
+  <string key="err.mirror_offset">La geometria rispecchiata richiede spostamento 0, altrimenti il motivo non è più simmetrico rispetto alla mezzeria.</string>
   <string key="err.count">Serve almeno una coda di rondine.</string>
   <string key="err.angle_range">L'angolo dei fianchi deve essere compreso tra -89 e 89 gradi.</string>
   <string key="err.angle_negative">Angolo dei fianchi troppo negativo - il dente si annulla.</string>

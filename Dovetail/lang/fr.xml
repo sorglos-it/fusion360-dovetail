@@ -11,6 +11,8 @@ Sélectionnez une ligne, puis réglez nombre / taille / profondeur / tolérance.
   <string key="in.line">Ligne</string>
   <string key="in.line.prompt">Sélectionner une ligne d'esquisse</string>
   <string key="in.count">Nombre</string>
+  <string key="in.mirror">Refléter la géométrie</string>
+  <string key="mirror.tooltip">La moitié des dents pointe d'un côté, l'autre moitié de l'autre, disposées de sorte qu'une rotation de 180 degrés autour du milieu de la ligne ramène le contour sur lui-même. Les deux pièces de la coupe sont alors identiques : un seul fichier, imprimé deux fois, la seconde pièce tournée. Exige un nombre pair, le partage médian et aucun décalage, réglés automatiquement.</string>
   <string key="in.shape">Forme</string>
   <string key="shape.trapezoid">Trapèze (queue d'aronde)</string>
   <string key="shape.triangle">Triangle</string>
@@ -42,6 +44,9 @@ Sélectionnez une ligne, puis réglez nombre / taille / profondeur / tolérance.
   <string key="err.width">La largeur doit être supérieure à 0.</string>
   <string key="err.depth">La profondeur doit être supérieure à 0.</string>
   <string key="err.tolerance_zero">Une bande fermée exige une tolérance supérieure à 0.</string>
+  <string key="err.mirror_even">Une géométrie reflétée exige un nombre pair de dents.</string>
+  <string key="err.mirror_center">Une géométrie reflétée ne fonctionne qu’avec la ligne médiane, la seule où les deux pièces cèdent autant l’une que l’autre.</string>
+  <string key="err.mirror_offset">Une géométrie reflétée exige un décalage nul, sinon le motif n’est plus symétrique par rapport au milieu de la ligne.</string>
   <string key="err.count">Au moins une queue d'aronde est nécessaire.</string>
   <string key="err.angle_range">L'angle de flanc doit être compris entre -89 et 89 degrés.</string>
   <string key="err.angle_negative">Angle de flanc trop négatif - la dent se réduit à néant.</string>

@@ -16,6 +16,8 @@ Pick a line, then set count / size / depth / tolerance.</string>
   <string key="in.line">Line</string>
   <string key="in.line.prompt">Select a sketch line</string>
   <string key="in.count">Count</string>
+  <string key="in.mirror">Mirror geometry</string>
+  <string key="mirror.tooltip">Half the teeth point one way and half the other, arranged so that turning the contour 180 degrees about the midpoint of the line maps it onto itself. Both parts of the cut then come out identical - one file, printed twice, the second one rotated. Needs an even count, the centred split and no offset, so those are set for you.</string>
   <string key="in.shape">Shape</string>
   <string key="shape.trapezoid">Trapezoid (dovetail)</string>
   <string key="shape.triangle">Triangle</string>
@@ -47,6 +49,9 @@ Pick a line, then set count / size / depth / tolerance.</string>
   <string key="err.width">The width must be greater than 0.</string>
   <string key="err.depth">The depth must be greater than 0.</string>
   <string key="err.tolerance_zero">A closed band needs a tolerance greater than 0.</string>
+  <string key="err.mirror_even">Mirrored geometry needs an even number of teeth.</string>
+  <string key="err.mirror_center">Mirrored geometry only works with the centre line, where both parts give up the same amount.</string>
+  <string key="err.mirror_offset">Mirrored geometry needs the offset at 0, otherwise the pattern is no longer symmetric about the midpoint of the line.</string>
   <string key="err.count">At least one dovetail is required.</string>
   <string key="err.angle_range">The flank angle must be between -89 and 89 degrees.</string>
   <string key="err.angle_negative">The flank angle is too steeply negative - the tooth tapers away to nothing.</string>

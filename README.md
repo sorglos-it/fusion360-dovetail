@@ -22,6 +22,7 @@ See also **[fusion360-sketch-grid](https://github.com/sorglos-it/fusion360-sketc
 - **One line in, one closed profile out** — the clearance band, ready to extrude-cut in a single operation
 - **Uniform clearance** — a real parallel offset, verified to the last floating-point digit by the test suite
 - **You choose who pays** — half from each part, or all of it from one
+- **Mirror geometry** — one symmetric cut, two identical parts: model once, print twice
 - **Three shapes** — trapezoid with flank angle (undercut, holds under load), triangle, rectangle (box / finger joint)
 - **Always centred on the line** — odd counts put a tooth on the midpoint, even counts put the gap there
 - **Nudge buttons** — ◀ / centre / ▶ shift the whole set along the line and stop themselves at the point where it would run off the end
@@ -62,6 +63,7 @@ Keep the folder name and the file names in sync — Fusion requires `<Folder>/<F
 |---|---|
 | **Line** | The sketch line the teeth sit on. Pre-filled from the current selection. |
 | **Count** | Number of teeth, 1 – 500, centred on the line. |
+| **Mirror geometry** | Makes the two parts identical. Rounds the count up to even and pins the split to the centre line with no offset. |
 | **Shape** | `Trapezoid` (default, real dovetail with undercut), `Triangle`, `Rectangle` (box joint). |
 | **Width (base)** | Width of the tooth where it meets the line. |
 | **Depth** | How far the tooth stands off the line. |
@@ -104,6 +106,28 @@ Two contours are built from the same zero-clearance outline: the **pocket**, off
 | `Pin edge` | +0.25 mm | on the line | 0.25 mm |
 
 Centred is what you want when the line is the middle of the joint and both halves should stay the size you drew them. The other two are for when the line *is* one part's edge and only the other may lose material.
+
+## Mirror geometry
+
+Tick it and half the teeth point one way, half the other, arranged so that turning the contour 180° about the midpoint of the line maps it onto itself. Both parts of the cut then come out **identical** — model once, export once, print twice and turn the second one round.
+
+```
+   ___                 ___
+  /   \               /   \        4 teeth, mirrored
+──┘     └───┬───┬───┴─┘     └──
+            │   │
+            └───┘
+```
+
+Three things break that symmetry, so the dialog sets them for you and greys them out:
+
+| Needs | Why |
+|---|---|
+| An **even** count | A tooth on the midpoint would have to point both ways at once. |
+| The **centre line** split | Only there do both parts give up the same amount; on an edge split one part stays nominal and the other loses everything. |
+| **No offset** | Shifting the group moves the symmetry point off the midpoint of the line. |
+
+The test suite checks the real invariant: turning the pocket contour 180° produces the pin contour exactly, for 2, 4, 6 and 8 teeth.
 
 ## Turning the band into two parts
 

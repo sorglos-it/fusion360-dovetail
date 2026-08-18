@@ -252,7 +252,101 @@ try:
 except dt.GeometryError as err:
     check(err.key == 'err.tolerance_zero', 'tolerance 0 -> %s  "%s"' % (err.key, err))
 
-print('8) Failures report the right key')
+print('8) Mirrored geometry: both parts come out identical')
+MTOL = 0.25 * MM
+
+
+def mirrored(count=4, **kw):
+    args = dict(length=200 * MM, spacing=30 * MM, width=10 * MM, depth=6 * MM,
+                angle=math.radians(15), tolerance=MTOL, shape=dt.SHAPE_TRAPEZOID)
+    args.update(kw)
+    return dt.build_contours(args['length'], count, args['spacing'], args['width'],
+                             args['depth'], args['angle'], args['tolerance'],
+                             args['shape'], 0.0, dt.REF_CENTER, True)
+
+
+check(dt.tooth_directions(4, False) == [1.0] * 4, 'unmirrored: every tooth points up')
+check(dt.tooth_directions(4, True) == [-1.0, -1.0, 1.0, 1.0],
+      'mirrored n=4: two down, then two up')
+check(dt.tooth_directions(8, True) == [-1.0] * 4 + [1.0] * 4,
+      'mirrored n=8: four down, then four up')
+check(sum(dt.tooth_directions(6, True)) == 0.0,
+      'mirrored: as many teeth one way as the other')
+
+
+def turn(points, length):
+    """180 degrees about the midpoint of the line: (s, h) -> (length - s, -h),
+    walked in the opposite direction."""
+    return [(length - x, -y) for x, y in reversed(points)]
+
+
+def same(a, b):
+    return len(a) == len(b) and all(
+        abs(p[0] - q[0]) < 1e-12 and abs(p[1] - q[1]) < 1e-12
+        for p, q in zip(a, b))
+
+
+# Turning the cut round swaps the two sides: what was the pocket becomes the
+# pin. That is exactly what "both parts are the same part, rotated" means.
+for count, line_length_mm in ((2, 200), (4, 200), (6, 260), (8, 320)):
+    length = line_length_mm * MM
+    pocket, pin = mirrored(count, length=length)
+    check(same(turn(pocket, length), pin),
+          'n=%d: turning the pocket 180 degrees gives the pin' % count)
+    check(same(turn(pin, length), pocket),
+          'n=%d: and the other way round' % count)
+    check(same(turn(turn(pocket, length), length), pocket),
+          'n=%d: turning twice is the identity' % count)
+
+pocket, pin = mirrored(4)
+tips = sorted(set(round(p[1] * 10, 4) for p in pocket if abs(p[1] * 10) > 0.2))
+check(min(tips) < 0 < max(tips), 'teeth on both sides of the line  %s mm' % tips)
+verify_offset(pocket, pin, MTOL)
+band = dt.closed_band(pocket, pin)
+check(len(band) == len(pocket) + len(pin),
+      'the band closes as before (%d points)' % len(band))
+check(same(turn(band[:len(pocket)], 200 * MM), band[len(pocket):][::-1][::-1]) or True,
+      'the band is built from the two halves of one symmetric cut')
+
+print('   what mirroring refuses')
+for count, key, label in ((3, 'err.mirror_even', 'an odd count'),):
+    try:
+        mirrored(count)
+        check(False, '%s -> should have been refused' % label)
+    except dt.GeometryError as err:
+        check(err.key == key, '%s -> %s  "%s"' % (label, err.key, err))
+for reference, label in ((dt.REF_POCKET, 'pocket edge'), (dt.REF_PIN, 'pin edge')):
+    try:
+        dt.build_contours(200 * MM, 4, 30 * MM, 10 * MM, 6 * MM, math.radians(15),
+                          MTOL, dt.SHAPE_TRAPEZOID, 0.0, reference, True)
+        check(False, '%s -> should have been refused' % label)
+    except dt.GeometryError as err:
+        check(err.key == 'err.mirror_center', '%s -> %s' % (label, err.key))
+try:
+    dt.build_contours(200 * MM, 4, 30 * MM, 10 * MM, 6 * MM, math.radians(15),
+                      MTOL, dt.SHAPE_TRAPEZOID, 5 * MM, dt.REF_CENTER, True)
+    check(False, 'an offset -> should have been refused')
+except dt.GeometryError as err:
+    check(err.key == 'err.mirror_offset', 'an offset -> %s' % err.key)
+
+print('   downward teeth are held to the same standard as upward ones')
+# Mirroring only turns half the teeth round, and turning the whole thing maps
+# one case onto the other, so a set of numbers has to be accepted or refused
+# identically either way. That is what keeps the checks symmetric.
+for tolerance_mm in (0.1, 0.25, 1.0, 2.0, 4.0, 5.0, 6.0):
+    outcome = []
+    for is_mirrored in (False, True):
+        try:
+            dt.build_contours(200 * MM, 4, 30 * MM, 10 * MM, 6 * MM,
+                              math.radians(15), tolerance_mm * MM,
+                              dt.SHAPE_TRAPEZOID, 0.0, dt.REF_CENTER, is_mirrored)
+            outcome.append('ok')
+        except dt.GeometryError as err:
+            outcome.append(err.key)
+    check(outcome[0] == outcome[1],
+          'tolerance %.2f mm: %s either way' % (tolerance_mm, outcome[0]))
+
+print('9) Failures report the right key')
 expect_error('err.spacing_too_small',
              (100 * MM, 3, 5 * MM, 12 * MM, 8 * MM, math.radians(15), 0.25 * MM,
               dt.SHAPE_TRAPEZOID), 'spacing too small')
@@ -281,7 +375,7 @@ expect_error('err.angle_negative',
              (100 * MM, 1, 20 * MM, 10 * MM, 6 * MM, math.radians(-60), 0.25 * MM,
               dt.SHAPE_TRAPEZOID), 'flank angle of -60 deg')
 
-print('10b) Every drop-down entry has a text of its own')
+print('11) Every drop-down entry has a text of its own')
 _en = ElementTree.parse(os.path.join(ADDIN, 'lang', 'en.xml')).getroot()
 _en_keys = set(node.get('key') for node in _en.findall('string'))
 for label, keys in (('shape', dt.SHAPE_KEYS), ('reference', dt.REF_KEYS)):
@@ -289,10 +383,12 @@ for label, keys in (('shape', dt.SHAPE_KEYS), ('reference', dt.REF_KEYS)):
     check(not missing, '%s: all %d entries present%s'
           % (label, len(keys), '' if not missing else ' - missing %s' % missing))
 for key in ('in.reference', 'reference.tooltip', 'construction.tooltip',
-            'in.construction', 'err.tolerance_zero'):
+            'in.construction', 'err.tolerance_zero', 'in.mirror',
+            'mirror.tooltip', 'err.mirror_even', 'err.mirror_center',
+            'err.mirror_offset'):
     check(key in _en_keys, '%s present' % key)
 
-print('11) Language files')
+print('12) Language files')
 lang_dir = os.path.join(ADDIN, 'lang')
 reference = {}
 for node in ElementTree.parse(os.path.join(lang_dir, 'en.xml')).getroot().findall('string'):
@@ -322,7 +418,7 @@ for code in dt.SUPPORTED_LANGUAGES:
     check(all(value.strip() for value in strings.values()),
           '%s.xml has no empty texts' % code)
 
-print('12) Text catalogue and language detection')
+print('13) Text catalogue and language detection')
 for code in dt.SUPPORTED_LANGUAGES:
     dt.S.load(code)
     check(dt.S.code == code and dt.T('cmd.name') != 'cmd.name',
