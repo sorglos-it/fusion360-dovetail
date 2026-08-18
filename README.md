@@ -81,7 +81,7 @@ Replacing an older copy: stop the add-in in Fusion first, otherwise the running 
 
 ## Alignment
 
-The set is always symmetric about the **midpoint of the selected line**:
+The set is always symmetric about the **midpoint of the line it sits on** — with several lines selected, each one is measured and centred on its own:
 
 | Count | Position relative to the midpoint (spacing 30 mm) |
 |---|---|
@@ -91,7 +91,7 @@ The set is always symmetric about the **midpoint of the selected line**:
 | 4 | `−45 / −15 / +15 / +45` |
 | 5 | `−60 / −30 / 0 / +30 / +60` |
 
-An odd count puts a tooth on the midpoint, an even count puts the gap there, and the centre of gravity of the group lands exactly on the midpoint either way.
+An odd count puts a tooth on the midpoint, an even count puts the gap there, and the centre of gravity of the group lands exactly on the midpoint either way. Lines of different lengths therefore all come out centred, not aligned to each other.
 
 **Offset** moves away from that. The ◀ / ▶ buttons clamp themselves to the range in which the teeth still fit entirely on the line — with several selected, the shortest one sets the limit, so holding one down parks the set against the end instead of producing an invalid sketch. The offset resets to 0 on every invocation — it belongs to the line at hand, not to the settings.
 
