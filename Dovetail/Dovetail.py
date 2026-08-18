@@ -83,6 +83,8 @@ NUDGE_LEFT = 0
 NUDGE_CENTER = 1
 NUDGE_RIGHT = 2
 
+MAX_LINES = 100
+
 EPS = 1e-9
 MAX_FLANK_ANGLE = math.radians(89.0)
 
@@ -534,26 +536,51 @@ def _read_inputs(inputs):
     )
 
 
-def _selected_line(inputs):
+def _selected_lines(inputs):
+    """Every sketch line currently in the selection input, in pick order."""
     selection = inputs.itemById(IN_LINE)
-    if selection.selectionCount != 1:
-        return None
-    entity = selection.selection(0).entity
-    if entity and entity.objectType == adsk.fusion.SketchLine.classType():
-        return entity
-    return None
+    lines = []
+    for index in range(selection.selectionCount):
+        entity = selection.selection(index).entity
+        if entity and entity.objectType == adsk.fusion.SketchLine.classType():
+            lines.append(entity)
+    return lines
+
+
+def _check_lines(lines, values):
+    """Validate every line before drawing any of them.
+
+    Each line gets its own joint from the same settings, so a short one in the
+    middle of the selection fails while the others would have been fine. The
+    message says which one, otherwise there is nothing to go on.
+    """
+    for index, line in enumerate(lines, 1):
+        try:
+            build_contours(line_length(line), values['count'], values['spacing'],
+                           values['width'], values['depth'], values['angle'],
+                           values['tolerance'], values['shape'], values['offset'],
+                           values['reference'], values['mirror'])
+        except GeometryError as err:
+            if len(lines) == 1:
+                raise
+            raise GeometryError('err.on_line', str(index), str(len(lines)),
+                                str(err))
 
 
 def _run(inputs, modify_original):
-    line = _selected_line(inputs)
-    if not line:
+    lines = _selected_lines(inputs)
+    if not lines:
         raise GeometryError('err.no_line')
     values = _read_inputs(inputs)
-    create_geometry(line, values['count'], values['spacing'], values['width'],
-                    values['depth'], values['angle'], values['tolerance'],
-                    values['flip'], values['shape'], values['offset'],
-                    values['reference'], values['mirror'],
-                    values['to_construction'], modify_original)
+    # Check the whole selection first, so a bad line at the end cannot leave
+    # half the sketch drawn.
+    _check_lines(lines, values)
+    for line in lines:
+        create_geometry(line, values['count'], values['spacing'], values['width'],
+                        values['depth'], values['angle'], values['tolerance'],
+                        values['flip'], values['shape'], values['offset'],
+                        values['reference'], values['mirror'],
+                        values['to_construction'], modify_original)
     return values
 
 
@@ -596,15 +623,11 @@ class ValidateHandler(adsk.core.ValidateInputsEventHandler):
     def notify(self, args):
         try:
             inputs = args.firingEvent.sender.commandInputs
-            line = _selected_line(inputs)
-            if not line:
+            lines = _selected_lines(inputs)
+            if not lines:
                 args.areInputsValid = False
                 return
-            values = _read_inputs(inputs)
-            build_contours(line_length(line), values['count'], values['spacing'],
-                           values['width'], values['depth'], values['angle'],
-                           values['tolerance'], values['shape'], values['offset'],
-                           values['reference'], values['mirror'])
+            _check_lines(lines, _read_inputs(inputs))
             args.areInputsValid = True
         except GeometryError:
             args.areInputsValid = False
@@ -640,12 +663,16 @@ def _apply_nudge(inputs, row):
             return
 
         target = offset_input.value + delta * inputs.itemById(IN_STEP).value
-        line = _selected_line(inputs)
-        if line:
+        lines = _selected_lines(inputs)
+        if lines:
             values = _read_inputs(inputs)
-            limit = max_offset(line_length(line), values['count'],
-                               values['spacing'], values['width'],
-                               values['depth'], values['angle'], values['shape'])
+            # The shortest line decides: an offset that runs off one of them is
+            # no good even if the others could take it.
+            limit = min(max_offset(line_length(line), values['count'],
+                                   values['spacing'], values['width'],
+                                   values['depth'], values['angle'],
+                                   values['shape'])
+                        for line in lines)
             if limit > EPS:
                 target = max(-limit, min(limit, target))
         offset_input.value = target
@@ -724,7 +751,7 @@ class CommandCreatedHandler(adsk.core.CommandCreatedEventHandler):
             selection = inputs.addSelectionInput(IN_LINE, T('in.line'),
                                                  T('in.line.prompt'))
             selection.addSelectionFilter('SketchLines')
-            selection.setSelectionLimits(1, 1)
+            selection.setSelectionLimits(1, MAX_LINES)
 
             inputs.addIntegerSpinnerCommandInput(
                 IN_COUNT, T('in.count'), 1, 500, 1, _last[IN_COUNT])
@@ -780,7 +807,8 @@ class CommandCreatedHandler(adsk.core.CommandCreatedEventHandler):
 
 
             if preselected and selection.selectionCount == 0:
-                selection.addSelection(preselected[0])
+                for entity in preselected[:MAX_LINES]:
+                    selection.addSelection(entity)
             _apply_mirror(inputs)
 
             on_execute = ExecuteHandler()

@@ -13,8 +13,8 @@
 Pick a line, then set count / size / depth / tolerance.</string>
 
   <!-- Inputs -->
-  <string key="in.line">Line</string>
-  <string key="in.line.prompt">Select a sketch line</string>
+  <string key="in.line">Lines</string>
+  <string key="in.line.prompt">Select one or more sketch lines</string>
   <string key="in.count">Count</string>
   <string key="in.mirror">Mirror geometry</string>
   <string key="mirror.tooltip">Half the teeth point one way and half the other, arranged so that turning the contour 180 degrees about the midpoint of the line maps it onto itself. Both parts of the cut then come out identical - one file, printed twice, the second one rotated. Needs an even count, the centred split and no offset, so those are set for you.</string>
@@ -44,7 +44,8 @@ Pick a line, then set count / size / depth / tolerance.</string>
   <string key="in.construction">Turn the original line into construction geometry</string>
 
   <!-- Validation -->
-  <string key="err.no_line">Please select exactly one sketch line.</string>
+  <string key="err.no_line">Please select at least one sketch line.</string>
+  <string key="err.on_line">Line {0} of {1}: {2}</string>
   <string key="err.zero_length">The selected line has no length.</string>
   <string key="err.width">The width must be greater than 0.</string>
   <string key="err.depth">The depth must be greater than 0.</string>

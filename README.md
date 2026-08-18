@@ -7,7 +7,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Donate](https://img.shields.io/badge/Donate-PayPal-00457C.svg?logo=paypal)](https://www.paypal.com/donate/?hosted_button_id=6CDEVZGJWTNQQ)
 
-A Fusion 360 add-in that turns **one sketch line into a finished joint**. Pick a line, press the button, and you get a single closed profile: the **clearance itself**, a band of exactly the tolerance following the tooth outline. Cut that band out of one solid and you are left with two parts that fit.
+A Fusion 360 add-in that turns **sketch lines into finished joints**. Pick a line, press the button, and you get a single closed profile: the **clearance itself**, a band of exactly the tolerance following the tooth outline. Cut that band out of one solid and you are left with two parts that fit. Select a whole set of lines and each one gets its own joint from the same settings.
 
 The tolerance is not a guess applied to one edge. Both sides of the band are **true parallel offsets of the same outline**, so the clearance is identical on the base face, on both flanks and over the tip.
 
@@ -20,6 +20,7 @@ See also **[fusion360-sketch-grid](https://github.com/sorglos-it/fusion360-sketc
 ## Features
 
 - **One line in, one closed profile out** — the clearance band, ready to extrude-cut in a single operation
+- **Or many lines at once** — up to 100 in one go, each measured and cut on its own
 - **Uniform clearance** — a real parallel offset, verified to the last floating-point digit by the test suite
 - **You choose who pays** — half from each part, or all of it from one
 - **Mirror geometry** — one symmetric cut, two identical parts: model once, print twice
@@ -47,22 +48,22 @@ See also **[fusion360-sketch-grid](https://github.com/sorglos-it/fusion360-sketc
    | macOS | `~/Library/Application Support/Autodesk/Autodesk Fusion 360/API/AddIns/` |
 
 3. In Fusion: **Utilities → ADD-INS → Add-Ins**, select the entry, tick *Run on Startup*, press **Run**.
-4. The button appears on the **SKETCH** tab in the **CREATE** panel, with the installed version in brackets after its name — *Dovetail (1.4.1)* — so the dialog title says which version you are on.
+4. The button appears on the **SKETCH** tab in the **CREATE** panel, with the installed version in brackets after its name — *Dovetail (1.5.0)* — so the dialog title says which version you are on.
 
 Replacing an older copy: stop the add-in in Fusion first, otherwise the running one stays in memory. Keep the folder name and the file names in sync — Fusion requires `<Folder>/<Folder>.py` and `<Folder>/<Folder>.manifest` to match.
 
 ## Usage
 
 1. Open or edit a sketch.
-2. Click a line.
-3. Click the dovetail icon — the line you clicked is already filled into the dialog.
+2. Click a line, or several — hold the usual modifier to add to the selection.
+3. Click the dovetail icon — whatever you had selected is already filled into the dialog.
 4. Set the values, watch the preview, press **OK**.
 
 ## Dialog
 
 | Field | Meaning |
 |---|---|
-| **Line** | The sketch line the teeth sit on. Pre-filled from the current selection. |
+| **Lines** | The sketch lines the teeth sit on, one to 100. Pre-filled from the current selection. |
 | **Count** | Number of teeth, 1 – 500, centred on the line. |
 | **Mirror geometry** | Makes the two parts identical. Rounds the count up to even and pins the split to the centre line with no offset. |
 | **Shape** | `Trapezoid` (default, real dovetail with undercut), `Triangle`, `Rectangle` (box joint). |
@@ -92,7 +93,7 @@ The set is always symmetric about the **midpoint of the selected line**:
 
 An odd count puts a tooth on the midpoint, an even count puts the gap there, and the centre of gravity of the group lands exactly on the midpoint either way.
 
-**Offset** moves away from that. The ◀ / ▶ buttons clamp themselves to the range in which the teeth still fit entirely on the line, so holding one down parks the set against the end instead of producing an invalid sketch. The offset resets to 0 on every invocation — it belongs to the line at hand, not to the settings.
+**Offset** moves away from that. The ◀ / ▶ buttons clamp themselves to the range in which the teeth still fit entirely on the line — with several selected, the shortest one sets the limit, so holding one down parks the set against the end instead of producing an invalid sketch. The offset resets to 0 on every invocation — it belongs to the line at hand, not to the settings.
 
 ## How the tolerance works
 
@@ -108,6 +109,16 @@ Two contours are built from the same zero-clearance outline: the **pocket**, off
 
 Centred is what you want when the line is the middle of the joint and both halves should stay the size you drew them. The other two are for when the line *is* one part's edge and only the other may lose material.
 
+## Several lines at once
+
+Every selected line gets its own joint from the same settings, measured on its own. Lines of different lengths are fine as long as the teeth fit on each of them; the teeth are laid out relative to each line's own midpoint, and each line becomes construction geometry in turn.
+
+That is what makes a part with **gaps between the pieces** practical: select every cut line in the sketch, press OK once, and each cut comes out complete.
+
+If one line cannot take the settings, nothing is drawn at all and the message names the offender — *Line 2 of 3: the teeth are wider than the selected line (30.00 mm)*. The whole selection is checked before the first curve is created, so a bad line at the end cannot leave you with half a sketch.
+
+The teeth stand perpendicular to each line, on the side its own start-to-end direction decides. Lines drawn in opposite directions therefore get their teeth on opposite sides; **Flip direction** turns them all over together.
+
 ## Mirror geometry
 
 Tick it and half the teeth point one way, half the other, arranged so that turning the contour 180° about the midpoint of the line maps it onto itself. Both parts of the cut then come out **identical** — model once, export once, print twice and turn the second one round.
@@ -119,6 +130,8 @@ Tick it and half the teeth point one way, half the other, arranged so that turni
             │   │
             └───┘
 ```
+
+With several lines selected, mirroring applies to **each line on its own** — every cut is symmetric about its own midpoint, independently of the others.
 
 Three things break that symmetry, so the dialog sets them for you and greys them out:
 

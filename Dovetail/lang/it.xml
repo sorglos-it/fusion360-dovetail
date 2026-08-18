@@ -8,8 +8,8 @@
 Seleziona una linea, poi imposta numero / dimensione / profondità / tolleranza.</string>
 
   <!-- Inputs -->
-  <string key="in.line">Linea</string>
-  <string key="in.line.prompt">Seleziona una linea di schizzo</string>
+  <string key="in.line">Linee</string>
+  <string key="in.line.prompt">Seleziona una o più linee di schizzo</string>
   <string key="in.count">Numero</string>
   <string key="in.mirror">Rispecchia la geometria</string>
   <string key="mirror.tooltip">Metà dei denti punta da una parte e metà dall'altra, disposti in modo che una rotazione di 180 gradi attorno alla mezzeria della linea riporti il profilo su se stesso. I due pezzi del taglio risultano così identici: un solo file, stampato due volte, il secondo ruotato. Richiede un numero pari, la divisione centrata e nessuno spostamento, che vengono impostati di conseguenza.</string>
@@ -39,7 +39,8 @@ Seleziona una linea, poi imposta numero / dimensione / profondità / tolleranza.
   <string key="in.construction">Converti la linea originale in geometria di costruzione</string>
 
   <!-- Validation -->
-  <string key="err.no_line">Seleziona esattamente una linea di schizzo.</string>
+  <string key="err.no_line">Seleziona almeno una linea di schizzo.</string>
+  <string key="err.on_line">Linea {0} di {1}: {2}</string>
   <string key="err.zero_length">La linea selezionata ha lunghezza zero.</string>
   <string key="err.width">La larghezza deve essere maggiore di 0.</string>
   <string key="err.depth">La profondità deve essere maggiore di 0.</string>

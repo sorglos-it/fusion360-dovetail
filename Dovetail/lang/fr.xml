@@ -8,8 +8,8 @@
 Sélectionnez une ligne, puis réglez nombre / taille / profondeur / tolérance.</string>
 
   <!-- Inputs -->
-  <string key="in.line">Ligne</string>
-  <string key="in.line.prompt">Sélectionner une ligne d'esquisse</string>
+  <string key="in.line">Lignes</string>
+  <string key="in.line.prompt">Sélectionner une ou plusieurs lignes d'esquisse</string>
   <string key="in.count">Nombre</string>
   <string key="in.mirror">Refléter la géométrie</string>
   <string key="mirror.tooltip">La moitié des dents pointe d'un côté, l'autre moitié de l'autre, disposées de sorte qu'une rotation de 180 degrés autour du milieu de la ligne ramène le contour sur lui-même. Les deux pièces de la coupe sont alors identiques : un seul fichier, imprimé deux fois, la seconde pièce tournée. Exige un nombre pair, le partage médian et aucun décalage, réglés automatiquement.</string>
@@ -39,7 +39,8 @@ Sélectionnez une ligne, puis réglez nombre / taille / profondeur / tolérance.
   <string key="in.construction">Convertir la ligne d'origine en géométrie de construction</string>
 
   <!-- Validation -->
-  <string key="err.no_line">Sélectionnez exactement une ligne d'esquisse.</string>
+  <string key="err.no_line">Sélectionnez au moins une ligne d'esquisse.</string>
+  <string key="err.on_line">Ligne {0} sur {1} : {2}</string>
   <string key="err.zero_length">La ligne sélectionnée n'a aucune longueur.</string>
   <string key="err.width">La largeur doit être supérieure à 0.</string>
   <string key="err.depth">La profondeur doit être supérieure à 0.</string>

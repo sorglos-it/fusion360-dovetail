@@ -8,8 +8,8 @@
 Linie wählen, dann Anzahl / Größe / Tiefe / Toleranz einstellen.</string>
 
   <!-- Inputs -->
-  <string key="in.line">Linie</string>
-  <string key="in.line.prompt">Skizzenlinie wählen</string>
+  <string key="in.line">Linien</string>
+  <string key="in.line.prompt">Eine oder mehrere Skizzenlinien wählen</string>
   <string key="in.count">Anzahl</string>
   <string key="in.mirror">Geometrie spiegeln</string>
   <string key="mirror.tooltip">Die Hälfte der Zähne zeigt in die eine, die andere Hälfte in die andere Richtung - so angeordnet, dass die Kontur beim Drehen um 180 Grad um die Linienmitte auf sich selbst fällt. Beide Teile des Schnitts werden dadurch identisch: eine Datei, zweimal gedruckt, das zweite Teil gedreht. Braucht eine gerade Anzahl, die Mittellinie und keine Verschiebung, deshalb werden die drei mit gesetzt.</string>
@@ -39,7 +39,8 @@ Linie wählen, dann Anzahl / Größe / Tiefe / Toleranz einstellen.</string>
   <string key="in.construction">Originallinie in Konstruktionslinie umwandeln</string>
 
   <!-- Validation -->
-  <string key="err.no_line">Bitte genau eine Skizzenlinie wählen.</string>
+  <string key="err.no_line">Bitte mindestens eine Skizzenlinie wählen.</string>
+  <string key="err.on_line">Linie {0} von {1}: {2}</string>
   <string key="err.zero_length">Die gewählte Linie hat keine Länge.</string>
   <string key="err.width">Die Breite muss größer als 0 sein.</string>
   <string key="err.depth">Die Tiefe muss größer als 0 sein.</string>

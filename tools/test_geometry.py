@@ -375,7 +375,92 @@ expect_error('err.angle_negative',
              (100 * MM, 1, 20 * MM, 10 * MM, 6 * MM, math.radians(-60), 0.25 * MM,
               dt.SHAPE_TRAPEZOID), 'flank angle of -60 deg')
 
-print('11) Every drop-down entry has a text of its own')
+print('9) One joint per selected line')
+
+
+class FakePoint(object):
+    def __init__(self, x, y):
+        self.x, self.y = x, y
+
+
+class FakeSketchPoint(object):
+    def __init__(self, x, y):
+        self.geometry = FakePoint(x, y)
+
+
+class FakeLine(object):
+    """Just enough of a SketchLine for line_length() and the checks."""
+
+    def __init__(self, length_mm):
+        self.startSketchPoint = FakeSketchPoint(0.0, 0.0)
+        self.endSketchPoint = FakeSketchPoint(length_mm * MM, 0.0)
+
+
+settings = dict(count=2, spacing=30 * MM, width=10 * MM, depth=6 * MM,
+                angle=math.radians(15), tolerance=0.25 * MM,
+                shape=dt.SHAPE_TRAPEZOID, offset=0.0,
+                reference=dt.REF_CENTER, mirror=False)
+
+check(dt.MAX_LINES >= 2, 'the selection takes more than one line (up to %d)'
+      % dt.MAX_LINES)
+check(abs(dt.line_length(FakeLine(120)) - 120 * MM) < 1e-12,
+      'line_length reads a line off the sketch')
+
+# Every line is measured on its own, so lines of different lengths each get
+# their own joint from the same settings.
+lines = [FakeLine(120), FakeLine(200), FakeLine(90)]
+try:
+    dt._check_lines(lines, settings)
+    check(True, 'three lines of 120 / 200 / 90 mm all take a 2-tooth joint')
+except dt.GeometryError as err:
+    check(False, 'three different lines -> %s' % err)
+
+for line in lines:
+    pocket, pin = dt.build_contours(
+        dt.line_length(line), settings['count'], settings['spacing'],
+        settings['width'], settings['depth'], settings['angle'],
+        settings['tolerance'], settings['shape'], settings['offset'],
+        settings['reference'], settings['mirror'])
+    check(abs(pocket[-1][0] - dt.line_length(line)) < 1e-12,
+          'the joint spans the whole %.0f mm line' % (dt.line_length(line) * 10))
+
+print('   a line that cannot take it names itself')
+short = [FakeLine(120), FakeLine(30), FakeLine(200)]
+try:
+    dt._check_lines(short, settings)
+    check(False, 'a 30 mm line should have been refused')
+except dt.GeometryError as err:
+    check(err.key == 'err.on_line', 'refused with %s' % err.key)
+    check('2' in str(err) and '3' in str(err),
+          'and says which one: "%s"' % err)
+
+print('   a single line reports plainly, without the position')
+try:
+    dt._check_lines([FakeLine(30)], settings)
+    check(False, 'a single short line should have been refused')
+except dt.GeometryError as err:
+    check(err.key == 'err.does_not_fit',
+          'one line -> %s, no line number to give' % err.key)
+
+print('   mirroring applies to each line on its own')
+mirrored_settings = dict(settings, mirror=True, count=4)
+try:
+    dt._check_lines([FakeLine(200), FakeLine(260)], mirrored_settings)
+    check(True, 'both lines take a mirrored 4-tooth joint')
+except dt.GeometryError as err:
+    check(False, 'mirrored over two lines -> %s' % err)
+
+for length_mm in (200, 260):
+    length = length_mm * MM
+    pocket, pin = dt.build_contours(
+        length, 4, 30 * MM, 10 * MM, 6 * MM, math.radians(15), 0.25 * MM,
+        dt.SHAPE_TRAPEZOID, 0.0, dt.REF_CENTER, True)
+    turned = [(length - x, -y) for x, y in reversed(pocket)]
+    check(all(abs(a[0] - b[0]) < 1e-12 and abs(a[1] - b[1]) < 1e-12
+              for a, b in zip(turned, pin)),
+          '%.0f mm line: still self-symmetric on its own midpoint' % length_mm)
+
+print('10) Every drop-down entry has a text of its own')
 _en = ElementTree.parse(os.path.join(ADDIN, 'lang', 'en.xml')).getroot()
 _en_keys = set(node.get('key') for node in _en.findall('string'))
 for label, keys in (('shape', dt.SHAPE_KEYS), ('reference', dt.REF_KEYS)):
@@ -384,11 +469,12 @@ for label, keys in (('shape', dt.SHAPE_KEYS), ('reference', dt.REF_KEYS)):
           % (label, len(keys), '' if not missing else ' - missing %s' % missing))
 for key in ('in.reference', 'reference.tooltip', 'construction.tooltip',
             'in.construction', 'err.tolerance_zero', 'in.mirror',
+            'err.on_line',
             'mirror.tooltip', 'err.mirror_even', 'err.mirror_center',
             'err.mirror_offset'):
     check(key in _en_keys, '%s present' % key)
 
-print('12) Language files')
+print('11) Language files')
 lang_dir = os.path.join(ADDIN, 'lang')
 reference = {}
 for node in ElementTree.parse(os.path.join(lang_dir, 'en.xml')).getroot().findall('string'):
@@ -418,7 +504,7 @@ for code in dt.SUPPORTED_LANGUAGES:
     check(all(value.strip() for value in strings.values()),
           '%s.xml has no empty texts' % code)
 
-print('13) Text catalogue and language detection')
+print('12) Text catalogue and language detection')
 for code in dt.SUPPORTED_LANGUAGES:
     dt.S.load(code)
     check(dt.S.code == code and dt.T('cmd.name') != 'cmd.name',
