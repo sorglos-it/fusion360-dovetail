@@ -46,7 +46,7 @@ See also **[fusion360-sketch-grid](https://github.com/sorglos-it/fusion360-sketc
    | macOS | `~/Library/Application Support/Autodesk/Autodesk Fusion 360/API/AddIns/` |
 
 2. In Fusion: **Utilities → ADD-INS → Add-Ins**, select the entry, tick *Run on Startup*, press **Run**.
-3. The button appears on the **SKETCH** tab in the **CREATE** panel.
+3. The button appears on the **SKETCH** tab in the **CREATE** panel, with the installed version in brackets after its name — *Dovetail (1.4.1)* — so the dialog title says which version you are on.
 
 Keep the folder name and the file names in sync — Fusion requires `<Folder>/<Folder>.py` and `<Folder>/<Folder>.manifest` to match.
 

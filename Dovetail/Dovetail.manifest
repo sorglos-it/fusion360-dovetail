@@ -10,7 +10,7 @@
         "fr-FR": "Cree des assemblages a queue d'aronde, triangulaires ou a peigne sur une ligne d'esquisse sous forme d'une bande fermee de la largeur du jeu : la decouper fait s'emboiter les deux pieces.",
         "it-IT": "Crea giunti a coda di rondine, triangolari o a pettine su una linea di schizzo come una fascia chiusa larga quanto il gioco: tagliandola, i due pezzi combaciano."
     },
-    "version": "1.4.0",
+    "version": "1.4.1",
     "runOnStartup": true,
     "supportedOS": "windows|mac",
     "editEnabled": true

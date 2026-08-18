@@ -60,7 +60,6 @@ IN_NUDGE = 'dtNudge'
 IN_TOLERANCE = 'dtTolerance'
 IN_REFERENCE = 'dtReference'
 IN_MIRROR = 'dtMirror'
-IN_VERSION = 'dtVersion'
 IN_FLIP = 'dtFlip'
 IN_CONSTRUCTION = 'dtConstruction'
 
@@ -172,16 +171,14 @@ def read_version():
         return ''
 
 
-def add_version_label(inputs):
-    """Small grey version in the bottom right corner of the dialog."""
+def display_name():
+    """Command name with the version in brackets, e.g. "Dovetail (1.4.1)".
+
+    Fusion uses the command definition's name as the dialog title, so this is
+    where a version has to go to be visible while the dialog is open.
+    """
     version = read_version()
-    if not version:
-        return
-    box = inputs.addTextBoxCommandInput(
-        IN_VERSION, '',
-        '<div align="right"><font size="1" color="#808080">v%s</font></div>' % version,
-        1, True)
-    box.isFullWidth = True
+    return '%s (%s)' % (T('cmd.name'), version) if version else T('cmd.name')
 
 
 def detect_language():
@@ -781,8 +778,6 @@ class CommandCreatedHandler(adsk.core.CommandCreatedEventHandler):
                 _last[IN_CONSTRUCTION])
             construction.tooltip = T('construction.tooltip')
 
-            # Last input, so it lands in the bottom right corner of the dialog.
-            add_version_label(inputs)
 
             if preselected and selection.selectionCount == 0:
                 selection.addSelection(preselected[0])
@@ -837,7 +832,7 @@ def run(context):
 
         icons = RESOURCE_FOLDER if os.path.isdir(RESOURCE_FOLDER) else ''
         definition = ui.commandDefinitions.addButtonDefinition(
-            CMD_ID, T('cmd.name'), T('cmd.tooltip'), icons)
+            CMD_ID, display_name(), T('cmd.tooltip'), icons)
 
         on_created = CommandCreatedHandler()
         definition.commandCreated.add(on_created)
