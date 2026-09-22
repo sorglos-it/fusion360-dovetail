@@ -185,7 +185,7 @@ point for your own add-in.
 
 ## License
 
-MIT — see [LICENSE](LICENSE). © 2026 Thomas Weirich.
+MIT — see [LICENSE](LICENSE). © 2026 Sorglos Thomas Weirich.
 
 ## Donate via PayPal
 

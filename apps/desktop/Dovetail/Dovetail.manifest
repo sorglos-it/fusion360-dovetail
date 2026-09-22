@@ -2,7 +2,7 @@
     "autodeskProduct": "Fusion360",
     "type": "addin",
     "id": "9f3c1a72-5d84-4b1e-9c2a-7e6d4b8f0a13",
-    "author": "Thomas Weirich",
+    "author": "Sorglos Thomas Weirich",
     "description": {
         "": "Creates dovetail, triangle or box joints on a sketch line as one closed band of exactly the clearance - cut it out and the two parts fit.",
         "de-DE": "Erzeugt Schwalbenschwanz-, Dreieck- oder Fingerzinken-Verzahnungen auf einer Skizzenlinie als ein geschlossenes Band in Spaltbreite - ausschneiden, und die zwei Teile passen.",
