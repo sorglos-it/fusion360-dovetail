@@ -7,7 +7,7 @@ import struct
 
 _HERE = os.path.dirname(os.path.abspath(__file__))
 ADDIN = os.environ.get('DOVETAIL_ADDIN_DIR') or os.path.join(
-    os.path.dirname(_HERE), 'Dovetail')
+    os.path.dirname(_HERE), 'apps', 'desktop', 'Dovetail')
 OUT = os.path.join(ADDIN, 'resources', 'Dovetail')
 
 # Contours in normalised coordinates (0..1, y pointing up)
