@@ -57,7 +57,8 @@ What you get:
 - **Three shapes** — the trapezoid dovetail with a real undercut (default), a triangle, a rectangle for box joints.
 - **Many lines at once** — up to 100, each gets its own joint from the same settings.
 - **Mirror geometry** — one symmetric cut, two identical parts: model once, print twice.
-- **Live preview, explained refusals** — impossible values disable OK and the dialog says which one, in your language.
+- **Live preview, safe refusals** — impossible values make the preview disappear and grey out OK, so nothing
+  half-finished is drawn. The dialog does not say why; look at the value you changed last.
 
 ## Dialog
 
@@ -115,9 +116,9 @@ the other part may lose material.
 Every selected line gets its own joint, measured on its own; lines of different lengths are fine as long as the teeth
 fit on each. That makes parts with gaps between the pieces easy: select every cut line, press OK once.
 
-If one line cannot take the settings, nothing is drawn and the message names it — *Line 2 of 3: the teeth are wider
-than the selected line (30.00 mm)*. The teeth stand on the side each line's own start-to-end direction decides, so
-lines drawn in opposite directions get them on opposite sides; **Flip direction** turns them all over together.
+If one line cannot take the settings, nothing is drawn and OK stays grey. The dialog does not say which line — look at
+the shortest, it runs out of room first. The teeth stand on the side each line's own start-to-end direction decides,
+so lines drawn in opposite directions get them on opposite sides; **Flip direction** turns them all over together.
 
 ## Mirror geometry
 
@@ -173,8 +174,9 @@ instead. `python tools/test_geometry.py` still works and runs the same tests.
 How it works, in short: the selected line gives an origin, a direction and a normal; `build_contours()` lays out the
 teeth around `length / 2 + offset` in that frame; `_offset_polyline()` offsets every segment by the tolerance and
 mitres the corners, refusing a corner that would run more than twelve times the offset away; everything is checked
-before drawing, and failures raise a `GeometryError` with a language-independent key that the dialog shows. Drawing
-runs with `isComputeDeferred` set and chains the segments, so the outline comes out connected.
+before drawing, and failures raise a `GeometryError` with a language-independent key; the dialog turns that into a
+greyed-out OK without showing its text. Drawing runs with `isComputeDeferred` set and chains the segments, so the
+outline comes out connected.
 
 ## Related
 

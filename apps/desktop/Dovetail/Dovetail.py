@@ -552,7 +552,8 @@ def _check_lines(lines, values):
 
     Each line gets its own joint from the same settings, so a short one in the
     middle of the selection fails while the others would have been fine. The
-    message says which one, otherwise there is nothing to go on.
+    message says which one, but only execute's message box shows it - the
+    dialog itself just greys out OK.
     """
     for index, line in enumerate(lines, 1):
         try:
